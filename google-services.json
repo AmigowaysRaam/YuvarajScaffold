@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "382702972047",
+    "project_id": "yuvarajscaffoldingtrader-e2bfb",
+    "storage_bucket": "yuvarajscaffoldingtrader-e2bfb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:382702972047:android:09d2861bbdf99f0d7694fa",
+        "android_client_info": {
+          "package_name": "com.yuvarajscaffoldingtraders"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuVauH1Z1_x4zkRfG5Mg8I6rKf4JJNu9c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

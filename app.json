@@ -1,0 +1,62 @@
+{
+  "expo": {
+    "name": "Yuvaraj Scaffolding Traders",
+    "slug": "yuvarajscaffoldingtraders",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/yuvIcon.png",
+    "scheme": "yuvarajscaffoldingtraders",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "signingConfig": {
+      "keystorePath": "./kasemployee.jks",
+      "keystorePassword": "kasemployee",
+      "keyAlias": "kasemployee",
+      "keyPassword": "kasemployee"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "kasemployee",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs camera access to take photos",
+        "NSPhotoLibraryUsageDescription": "This app needs photo library access to upload images",
+        "NSMicrophoneUsageDescription": "This app needs microphone access to record audio"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/images/yuvIcon.png",
+        "backgroundImage": "./assets/images/yuvIcon.png",
+        "monochromeImage": "./assets/images/yuvIcon.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.yuvarajscaffoldingtraders",
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "READ_CALENDAR",
+        "WRITE_CALENDAR"
+      ]
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/yuvIcon.png"
+    },
+    "plugins": [
+      "expo-router",
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "98da5af2-4a84-4eaa-9528-46861b536c05"
+      }
+    }
+  }
+}
