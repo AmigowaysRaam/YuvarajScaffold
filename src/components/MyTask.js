@@ -35,7 +35,7 @@ const TASKS_INFO = {
   over_due: {   // 👈 NEW STATUS
     labelKey: "Overdue",
     icon: require("../../assets/alertmark.png"),
-    bgColor: COLORS?.primary+"50",
+    bgColor:'#FF0000',
   },
 };
 const MyTask = ({ homepageData }) => {

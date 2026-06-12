@@ -11,16 +11,12 @@ import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
 import AttendanceSummary from "./AttendanceSummary";
 import MonthYearDatePickerModal from "./CurentYearDayList";
-
 export default function Attendance() {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
   const [summary, setSummary] = useState({
-    present: 22,
-    absent: 2,
-    late: 3,
-    total: 27,
+    present: 22, absent: 2, late: 3, total: 27,
   });
   const [loginData, setLoginData] = useState([]);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
@@ -76,18 +72,15 @@ export default function Attendance() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {/* Header */}
-
-
         {/* Date Picker Modal */}
         <MonthYearDatePickerModal
           isVisible={isPickerVisible}
           onClose={() => setIsPickerVisible(false)}
           onSelect={({ month, year, date }) => {
+            console.log("Selected:", month, year, date);
             setSelectedDate(dayjs().year(year).month(month).date(date));
           }}
         />
-
-        {/* Summary */}
         <View style={{ padding: wp(4) }}>
           <AttendanceSummary summary={summary} />
         </View>
@@ -136,37 +129,22 @@ export default function Attendance() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFF" },
   scrollContainer: { paddingBottom: hp(2) },
   header: { flexDirection: "row", alignItems: "center", paddingHorizontal: wp(2) },
   backIcon: {
-    width: wp(6),
-    height: wp(6),
-    resizeMode: "contain",
-    marginHorizontal: wp(3),
-    padding: hp(1),
-  },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: wp(2),
-    paddingVertical: hp(0.5),
-    borderRadius: wp(2),
-    marginBottom: hp(1),
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    marginHorizontal: wp(2),
+    width: wp(6), height: wp(6),
+    resizeMode: "contain", marginHorizontal: wp(3), padding: hp(1),
+  }, card: {
+    flexDirection: "row", alignItems: "center", paddingHorizontal: wp(2),
+    paddingVertical: hp(0.5), borderRadius: wp(2),
+    marginBottom: hp(1), borderBottomWidth: 1, borderBottomColor: "#ddd", marginHorizontal: wp(2),
   },
   dateBox: {
-    width: wp(15),
-    height: wp(15),
-    borderRadius: wp(1),
-    justifyContent: "center",
+    width: wp(15), height: wp(15), borderRadius: wp(1), justifyContent: "center",
     alignItems: "center",
-  },
-  dayText: { fontSize: wp(4), fontFamily: "Poppins_500Medium" },
+  }, dayText: { fontSize: wp(4), fontFamily: "Poppins_500Medium" },
   dateTextBox: { fontSize: wp(5), fontFamily: "Poppins_700Bold" },
   detailsContainer: { flex: 1, marginLeft: wp(4), paddingHorizontal: wp(1) },
   fullDate: { fontSize: wp(4), fontFamily: "Poppins_600SemiBold", color: COLORS.black },
@@ -176,16 +154,9 @@ const styles = StyleSheet.create({
   emptyText: { textAlign: "center", marginTop: hp(5), fontSize: wp(4), color: COLORS.gray },
   dateToggle: {
     paddingVertical: wp(2.5),
-    marginVertical: wp(4),
-    backgroundColor: COLORS.primary,
-    borderRadius: wp(20),
-    width: wp(80),
-    elevation: 3,
-    alignSelf: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingHorizontal: wp(6),
+    marginVertical: wp(4), backgroundColor: COLORS.primary, borderRadius: wp(20), width: wp(80),
+    elevation: 3, alignSelf: "center", alignItems: "center", flexDirection: "row",
+    justifyContent: "space-around", paddingHorizontal: wp(6),
   },
   dateToggleText: { fontSize: wp(4.5), color: COLORS.white, fontFamily: "Poppins_600SemiBold" },
 });

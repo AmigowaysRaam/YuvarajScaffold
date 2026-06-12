@@ -2,7 +2,6 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import * as Calendar from "expo-calendar";
 import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
 import {
@@ -96,18 +95,6 @@ export default function SplashScreen() {
       console.error("Notification Error:", error);
     }
   };
-  const requestCalendarPermission = async () => {
-    try {
-      const { status } =
-        await Calendar.requestCalendarPermissionsAsync();
-
-      if (status !== "granted") {
-        Alert.alert("Calendar permission denied");
-      }
-    } catch (error) {
-      console.error("Calendar Error:", error);
-    }
-  };
   const checkFullScreenIntentPermission = () => {
     if (Platform.OS !== "android") return;
     const exactAlarm = canScheduleExactAlarms?.() ?? false;
@@ -139,7 +126,7 @@ export default function SplashScreen() {
         "POST"
       );
 
-      // console.log("🔑 Token Response:", tokenResponse);
+      console.log("🔑 Token Response:", tokenResponse);
       if (tokenResponse?.text === "Success") {
         dispatch(setTokens(tokenResponse));
         const siteDetailsData = await fetchData(
@@ -149,7 +136,7 @@ export default function SplashScreen() {
             Authorization: `${tokenResponse?.token}`,
           }
         );
-
+        console.log("🔑 siteDetailsData Response:", siteDetailsData);
         if (siteDetailsData?.text === "Success") {
           if (siteDetailsData?.data?.[0]?.site_mode == "1") {
             navigation.replace("MaintainancePage");

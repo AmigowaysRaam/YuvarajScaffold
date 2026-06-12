@@ -9,14 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "signingConfig": {
-      "keystorePath": "./kasemployee.jks",
-      "keystorePassword": "kasemployee",
-      "keyAlias": "kasemployee",
-      "keyPassword": "kasemployee"
+      "keystorePath": "./yuvarajscaffoldingtraders.jks",
+      "keystorePassword": "yuvarajscaffoldingtraders",
+      "keyAlias": "yuvarajscaffoldingtraders",
+      "keyPassword": "yuvarajscaffoldingtraders"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "kasemployee",
+      "bundleIdentifier": "yuvarajscaffoldingtraders",
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs camera access to take photos",
         "NSPhotoLibraryUsageDescription": "This app needs photo library access to upload images",
@@ -26,9 +26,9 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/yuvIcon.png",
-        "backgroundImage": "./assets/images/yuvIcon.png",
-        "monochromeImage": "./assets/images/yuvIcon.png"
+        "foregroundImage": "./assets/images/yuvarajscaffolding-appicon.png",
+        "backgroundImage": "./assets/images/yuvarajscaffolding-appicon.png",
+        "monochromeImage": "./assets/images/yuvarajscaffolding-appicon.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -37,8 +37,8 @@
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",
-        "READ_CALENDAR",
-        "WRITE_CALENDAR"
+        "ACCESS_FINE_LOCATION",
+      "ACCESS_COARSE_LOCATION"
       ]
     },
     "web": {

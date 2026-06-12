@@ -4,7 +4,8 @@ import {
   Animated, Image, Pressable, StyleSheet, Text, View
 } from "react-native";
 import { COLORS } from "../../app/resources/colors";
-import { wp } from "../../app/resources/dimensions";
+import { hp, wp } from "../../app/resources/dimensions";
+import VersionUpgradeModal from "./VersionUpgradeModal";
 export default function Header({
   openMenu, headerL,
   openLanguageMenu,
@@ -13,6 +14,7 @@ export default function Header({
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const notifCountNum = Number(notificationCount) || 0; // convert string to number
   const navigation = useNavigation();
+  
   useEffect(() => {
     if (notifCountNum > 0) {
       Animated.sequence([
@@ -40,7 +42,7 @@ export default function Header({
       <View style={styles.logoContainer}>
         <Image
           // source={{ uri: headerL }} 
-          source={require("../../assets/yuvarajscaffoldinglogoviolet.png")}
+          source={require("../../assets/yuvLog.png")}
           style={styles.logo} />
       </View>
 
@@ -68,7 +70,7 @@ export default function Header({
             )}
           </Animated.View>
         </Pressable>
-        {/* <VersionUpgradeModal /> */}
+        <VersionUpgradeModal />
       </View>
     </View>
   );
@@ -82,7 +84,7 @@ const styles = StyleSheet.create({
   rightContainer: { flexDirection: "row", alignItems: "center" },
   iconContainer: { padding: wp(1), marginHorizontal: wp(0.8) },
   icon: { width: wp(10), height: wp(10), resizeMode: "contain" },
-  logo: { width: wp(50), height: wp(11), resizeMode: "contain", marginBottom: wp(1) },
+  logo: { width: wp(50), height: hp(24), resizeMode: "cover", marginTop: hp(2) },
   badge: {
     position: "absolute", top: wp(-1.5), right: wp(-0.8),
     minWidth: wp(4.7), height: wp(4.7), borderRadius: wp(2.35),

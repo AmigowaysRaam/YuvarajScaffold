@@ -10,8 +10,10 @@ import {
   View,
 } from "react-native";
 import { Icon } from "react-native-elements";
+import { useSelector } from "react-redux";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
+import { fetchData } from "./api/Api";
 import CommonHeader from "./CommonHeader";
 import CustomDropdownData from "./CustomDropDownwihtUI";
 import PayrollTbHead from "./PayrollTbHead";
@@ -32,36 +34,54 @@ export default function PayrollLogScreen({ route }) {
   const flatListRef = useRef();
 
   const showFixedHeader = scrollY > hp(8);
+  const profileDetails = useSelector(
+    (state) => state?.auth?.profileDetails?.data
+  );
 
-  // Load dummy payroll data based on month/year
-  useEffect(() => loadPayroll(), [selectedYear, selectedMonth]);
+  useEffect(() => {
+    loadPayroll();
+  }, [selectedYear]);
 
-  const loadPayroll = () => {
+  const loadPayroll = async () => {
     const data = [];
-    const daysInMonth = dayjs().year(selectedYear).month(selectedMonth).daysInMonth();
-
-    for (let i = 0; i < daysInMonth; i++) {
-      const date = dayjs().year(selectedYear).month(selectedMonth).date(i + 1);
-      const formattedDate = date.format("YYYY-MM-DD");
-
-      const randomSalary = (Math.random() * 500 + 1000).toFixed(2);
-
-      data.push({
-        id: i + 1,
-        date: formattedDate,
-        employee: `Employee ${i + 1}`,
-        department: `Dept ${((i % 5) + 1)}`,
-        amount: randomSalary,
-        status: Math.random() > 0.2 ? "Paid" : "Pending",
-        details: {
-          basic: (randomSalary * 0.7).toFixed(2),
-          bonus: (randomSalary * 0.2).toFixed(2),
-          deductions: (randomSalary * 0.1).toFixed(2),
-        },
-      });
+    try {
+      const response = await fetchData(
+        "payroll-log",
+        "POST",
+        {
+          "employee_id": profileDetails?._id,
+          "year": selectedYear
+        }
+      );
+      console.log("Payroll API Response:", response,
+        selectedYear
+      );
+    } catch (error) {
+      console.error("Payroll API Error:", error);
+    } finally {
     }
-    setPayrollData(data);
-    setRefreshing(false);
+    // for (let i = 0; i < daysInMonth; i++) {
+    //   const date = dayjs().year(selectedYear).month(selectedMonth).date(i + 1);
+    //   const formattedDate = date.format("YYYY-MM-DD");
+
+    //   const randomSalary = (Math.random() * 500 + 1000).toFixed(2);
+
+    //   data.push({
+    //     id: i + 1,
+    //     date: formattedDate,
+    //     employee: `Employee ${i + 1}`,
+    //     department: `Dept ${((i % 5) + 1)}`,
+    //     amount: randomSalary,
+    //     status: Math.random() > 0.2 ? "Paid" : "Pending",
+    //     details: {
+    //       basic: (randomSalary * 0.7).toFixed(2),
+    //       bonus: (randomSalary * 0.2).toFixed(2),
+    //       deductions: (randomSalary * 0.1).toFixed(2),
+    //     },
+    //   });
+    // }
+    // setPayrollData(data);
+    // setRefreshing(false);
   };
   // Dropdown options
   const yearOptions = Array.from({ length: 15 }, (_, i) => {
@@ -121,6 +141,16 @@ export default function PayrollLogScreen({ route }) {
       </View>
       <PayrollTbHead style={styles.fixedHeader} />
       <FlatList
+      ListEmptyComponent={
+        !refreshing && (
+          <Text style={{
+            textAlign: "center", marginTop: hp(10),
+            fontFamily: 'Poppins_600SemiBold'
+          }}>
+            No payroll records found.
+          </Text>
+        )
+      }
         ref={flatListRef}
         data={payrollData}
         keyExtractor={(item) => item.id.toString()}

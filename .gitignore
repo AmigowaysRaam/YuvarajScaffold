@@ -85,3 +85,4 @@ yarn-error.*
 # @end expo-cli
 
 .yarn.lock
+yarn.lock

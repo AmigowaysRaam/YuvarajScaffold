@@ -169,7 +169,6 @@ const AttendanceDetails = ({ homepageData }) => {
 
           </View>
           <ImageBackground
-            // source={require("../../assets/cardBg.png")}
             style={[styles.summaryCard,{
               backgroundColor: COLORS?.primary,
               borderRadius: wp(2)

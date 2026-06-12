@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Linking, Modal, Platform, StyleSheet, Text,
-  TouchableOpacity,
-  View,
+  TouchableOpacity, View,
 } from "react-native";
 import VersionCheck from "react-native-version-check";
 import { COLORS } from "../../app/resources/colors";
 import { wp } from "../../app/resources/dimensions";
 
 export default function VersionUpgradeModal() {
+  
   const [visible, setVisible] = useState(false);
   const [currentVersion, setCurrentVersion] = useState("");
   const [latestVersion, setLatestVersion] = useState("");

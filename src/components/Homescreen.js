@@ -2,13 +2,11 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Pressable,
   RefreshControl, ScrollView, StyleSheet, Text, View
 } from "react-native";
 import { useSelector } from "react-redux";
 import { getStoredLanguage } from "../../app/i18ns";
 import { COLORS } from "../../app/resources/colors";
-import { hp, wp } from "../../app/resources/dimensions";
 import HomeSkeleton from "../../homeSkelton";
 import { fetchData } from "./api/Api";
 import AssignedTask from "./AssignedTask";
@@ -22,9 +20,8 @@ import MyTask from "./MyTask";
 import PunchCard from "./PunchCard";
 import SideMenu from "./Sidemenu";
 import TaskRow from "./TaskRow";
-
 export default function Homescreen() {
-
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [langMenuMOdal, setOpenLangMenu] = useState(false);
   const [punchLoading, setpunchLoading] = useState(false);
@@ -43,15 +40,16 @@ export default function Homescreen() {
     (state) => state?.auth?.profileDetails?.data
   );
   useEffect(() => {
+    // Alert.alert('',JSON.stringify(profileDetails));
     getStoredLanguage().then((storedLang) => {
       setLang(storedLang || "en");
     });
   }, []);
+
   const fetchHomepageData = async () => {
     if (!profileDetails?.id) return;
     try {
       if (!refreshing) setLoading(true);
-
       const response = await fetchData(
         "app-employee-homepage",
         "POST",
@@ -64,12 +62,13 @@ export default function Homescreen() {
         response?.text === "Success" ||
         response?.text === "Fetched successfully"
       ) {
+        // Alert.alert(JSON.stringify(response));
         setHomepageData(response.data);
       } else {
-        console.warn("API returned failure:", response);
+        console.warn("HOMEAPI returned failure:", response);
       }
     } catch (error) {
-      console.error("API Error:", error);
+      console.error("HOME API Error:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -78,6 +77,8 @@ export default function Homescreen() {
   /* ✅ INITIAL LOAD (ONCE) */
   useEffect(() => {
     fetchHomepageData();
+    // Alert.alert("Welcome!",JSON.stringify(profileDetails));
+
   }, [profileDetails?.id, lang]);
   useFocusEffect(
     useCallback(() => {
@@ -115,7 +116,7 @@ export default function Homescreen() {
         openLanguageMenu={() => setOpenLangMenu(true)}
         notificationCount={homepageData?.notification_count}
       />
-      <Pressable onPress={() => navigation.navigate('AttendanceLoginScreen')} style={{
+      {/* <Pressable onPress={() => navigation.navigate('AttendanceLoginScreen')} style={{
         padding: wp(4), borderColor: COLORS?.primary, width: wp(95), alignSelf: "center",
         borderRadius: wp(10), borderWidth: wp(2), backgroundColor: COLORS?.primary + '40', marginVertical: hp(0.5),
         alignSelf: "center", alignItems: "center",
@@ -126,7 +127,7 @@ export default function Homescreen() {
         }}>
           Mark Attendance
         </Text>
-      </Pressable>
+      </Pressable> */}
       <ScrollView
         style={styles.scrollContainer}
         refreshControl={

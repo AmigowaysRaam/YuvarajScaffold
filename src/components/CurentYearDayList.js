@@ -38,7 +38,6 @@ export default function MonthYearDatePickerModal({ isVisible, onClose, onSelect 
         else closePicker();
     }, [isVisible]);
 
-    // Scroll to current month/year/date on open
     useEffect(() => {
         setTimeout(() => {
             monthRef.current?.scrollToIndex({ index: selectedMonth, animated: true });
@@ -49,7 +48,6 @@ export default function MonthYearDatePickerModal({ isVisible, onClose, onSelect 
 
     const openPicker = () => {
         setIsOpen(true);
-
     };
 
     const closePicker = () => {

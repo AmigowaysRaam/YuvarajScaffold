@@ -3,7 +3,8 @@ import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator, Keyboard,
+  ActivityIndicator,
+  Keyboard,
   KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity,
   View
 } from "react-native";
@@ -73,7 +74,9 @@ export default function OtpVerfication({ route }) {
     }
     setError("");
     showToast(t("Otp_verified"), "success");
-    if (data[0]?.mpin_status === "0") {
+    // Alert.alert(t("Otp_verified"), JSON.stringify(data,null,2));
+    console.log("User Data:", JSON.stringify(data,null,2));
+    if (data[0]?.mpin_status && data[0]?.mpin_status === "0") {
       navigation.replace("CreateMpin", { data: data[0] });
     } else {
       await AsyncStorage.setItem("USER_DATA", JSON.stringify({ data }));

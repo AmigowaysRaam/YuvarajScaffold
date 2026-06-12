@@ -1,10 +1,8 @@
-export const BASE_URL = 'https://kasjewellery.com/';
 // export const BASE_URL = 'https://kasjewellery.com/';
+export const BASE_URL = 'https://hrms.yuvarajscaffoldingtraders.com/api/?url=';
 // https://hrms.yuvarajscaffoldingtraders.com/api/?url=
-
 const Live_URL = 'https://kasjewellery.in/';
 export const fetchData = async (endpoint, method = 'POST', body = null, headers = {}) => {
-  // const BASE_URL = 'https://kasjewellery.in/';
   const url = `${BASE_URL}${endpoint}`;
   const defaultHeaders = {
     'Content-Type': 'application/json',

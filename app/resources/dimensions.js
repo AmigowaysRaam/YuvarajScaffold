@@ -1,16 +1,23 @@
 import { Dimensions, PixelRatio } from 'react-native';
-const wp = (widthPercent, getScreenWidth) => {
+
+const { width, height } = Dimensions.get('window');
+
+const isTablet = Math.min(width, height) >= 600;
+
+export const wp = (percent) => {
   const screenWidth = Dimensions.get('window').width;
-  const elemWidth = parseFloat(widthPercent);
-  return getScreenWidth
-    ? screenWidth * (widthPercent / 100)
-    : PixelRatio.roundToNearestPixel((screenWidth * elemWidth) / 100);
+  const size = (screenWidth * percent) / 100;
+
+  return PixelRatio.roundToNearestPixel(
+    isTablet ? size * 0.7 : size
+  );
 };
 
-const hp = heightPercent => {
+export const hp = (percent) => {
   const screenHeight = Dimensions.get('window').height;
-  const elemHeight = parseFloat(heightPercent);
-  return PixelRatio.roundToNearestPixel((screenHeight * elemHeight) / 100);
-};
-export { hp, wp };
+  const size = (screenHeight * percent) / 100;
 
+  return PixelRatio.roundToNearestPixel(size);
+};
+
+export { isTablet };

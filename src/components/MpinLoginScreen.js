@@ -14,7 +14,6 @@ import { useToast } from "../../constants/ToastContext";
 import LogoAnimated from "./AniamtedImage";
 import { fetchData } from "./api/Api";
 import { setProfileDetails } from "./store/store";
-
 export default function MpinLoginScreen() {
   const navigation = useNavigation();
   const { t } = useTranslation();
@@ -39,7 +38,6 @@ export default function MpinLoginScreen() {
 
   useEffect(() => { loadUserId(); }, []);
   const loadUserId = async () => {
-    // console.log("Load User ID");
     try {
       const raw = await AsyncStorage.getItem("USER_DATA");
       if (!raw) return;
@@ -52,7 +50,7 @@ export default function MpinLoginScreen() {
       }
     } catch (err) { console.log("Load User ID Error:", err); }
   };
-  // FCM token
+ 
   useEffect(() => {
     const getFcmToken = async () => {
       try {
@@ -70,7 +68,7 @@ export default function MpinLoginScreen() {
     };
     getFcmToken();
   }, []);
-  // Handle login
+  
   const handleLogin = async (mpinValue = null) => {
     const mpinString = mpinValue || mpin;
     if (mpinString.length !== 4) {
@@ -82,21 +80,22 @@ export default function MpinLoginScreen() {
     setLoading(true);
     setError("");
     const pseudoId = `${Device.brand}${Device.modelName}${userId}`;
+    console.log('Login Attempt with pseudoId:', {
+      user_id: userId, mpin: mpinString, fcm_token: fcmToken, deviceId: pseudoId
+    });
     try {
       const response = await fetchData("app-employee-login-mpin", "POST", {
-        user_id: userId,
-        mpin: mpinString,
-        fcm_token: fcmToken,
-        deviceId: pseudoId
+        user_id: userId, mpin: mpinString,
+        fcm_token: fcmToken, deviceId: pseudoId
       });
-      // Alert.alert("Login Response", JSON.stringify(response));
+      console.log("Login Response", JSON.stringify(response));
       if (response?.text === "Success") {
         await AsyncStorage.multiSet([["USER_DATA", JSON.stringify(response)]]);
         dispatch(setProfileDetails(response));
         showToast(response?.message, "success");
         navigation.replace("home");
       } else {
-        // Alert.alert("Login Response", JSON.stringify(response));
+        console.log("Login Response", JSON.stringify(response));
         setError(response?.message || "something_went_wrong");
         showToast(response?.message, "error");
       }

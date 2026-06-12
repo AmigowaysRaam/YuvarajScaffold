@@ -41,15 +41,11 @@ const ATTENDANCE_INFO = {
   },
 };
 
-const AttendanceDetailsLog = ({ homepageData }) => {
+const AttendanceDetailsLog = ({ homepageData, attendanceDetails }) => {
   const { t } = useTranslation();
   const navigation = useNavigation();
 
-  const attendanceSection = homepageData?.sections?.find(
-    (item) => item.section === "assign_tasks"
-  );
-
-  const todayData = attendanceSection?.today_tasks || {};
+  const todayData = attendanceDetails || {};
   const keys = Object.keys(ATTENDANCE_INFO);
   const animations = useRef(keys.map(() => new Animated.Value(0))).current;
 
@@ -125,22 +121,22 @@ const AttendanceDetailsLog = ({ homepageData }) => {
       >
         <View style={styles.summaryHalf}>
           <Text style={styles.summaryText}>
-            {`${t("present_days")}: 25`}
+            {`${t("present_days")}: ${homepageData?.present_days || 0}`}
           </Text>
         </View>
+
         <View style={styles.divider} />
+
         <View style={styles.summaryHalf}>
           <Text style={styles.summaryText}>
-            {`${t("leave_days")}: 20`}
+            {`${t("absent_days")}: ${homepageData?.absent_days || 0}`}
           </Text>
         </View>
       </ImageBackground>
-
       <Text style={[styles.dateText, {
         alignSelf: "center", borderWidth: wp(0.3), padding: wp(1), borderRadius: wp(4), borderColor: COLORS?.primary, paddingHorizontal: wp(4), lineHeight: wp(5.5)
       }]}>
         {`${t("Tuesday")} : ${formattedDate}`}
-        {/* 17/02/2026 - 17/02/2026 - Tuesday */}
       </Text>
       {/* GRID CARDS */}
       <View style={styles.grid}>
@@ -148,20 +144,21 @@ const AttendanceDetailsLog = ({ homepageData }) => {
           renderCard(key, todayData[key], animations[index])
         )}
       </View>
+      {/*       
       <View style={styles.bottomRow}>
         <Pressable style={[styles.bottomButton, {
-          backgroundColor:COLORS?.white+"20"
+          backgroundColor: COLORS?.white + "20"
         }]}>
           <Text style={styles.bottomButtonTextPrimary}>
             {t("permission")}
           </Text>
         </Pressable>
         <Pressable style={[styles.bottomButton, styles.logoutButton, {
-          backgroundColor:COLORS?.primary+"20"
+          backgroundColor: COLORS?.primary + "20"
           // opacity:0.7
         }]}>
-          <Text style={[styles.bottomButtonTextWhite,{
-            color:COLORS?.primary
+          <Text style={[styles.bottomButtonTextWhite, {
+            color: COLORS?.primary
           }]}>
             {t("Break")}
           </Text>
@@ -173,7 +170,7 @@ const AttendanceDetailsLog = ({ homepageData }) => {
             {t("log_out")}
           </Text>
         </Pressable>
-      </View>
+      </View> */}
     </View>
   );
 };
@@ -203,7 +200,7 @@ const styles = StyleSheet.create({
     marginTop: hp(1), fontFamily: "Poppins_500Medium",
     fontSize: wp(3.1), color: COLORS.primary,
   }, summaryCard: {
-    flexDirection: "row",backgroundColor: COLORS.primary,
+    flexDirection: "row", backgroundColor: COLORS.primary,
     alignItems: "center", marginTop: hp(1.5),
     paddingVertical: hp(1.5), borderRadius: wp(2),
   },

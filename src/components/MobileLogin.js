@@ -27,8 +27,6 @@ export default function MobileLogin() {
   useEffect(() => {
     if (__DEV__) {
       setPhone("9943904056");
-      // setPhone("9999999999");
-
     }
     loadTranslationsFromAPI("en");
   }, []);
@@ -51,6 +49,8 @@ export default function MobileLogin() {
         phone_number: phone
       });
       // Alert.alert("", JSON.stringify(mobileLData))
+    console.log("MOBIKLE", JSON.stringify(mobileLData))
+
       if (mobileLData?.text === "Success") {
         showToast(mobileLData?.message, "success");
         navigation.replace("OtpVerfication", mobileLData);
