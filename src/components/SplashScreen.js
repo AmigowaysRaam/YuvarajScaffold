@@ -117,6 +117,7 @@ export default function SplashScreen() {
       );
     }
   };
+
   const fnGetToken = async () => {
     try {
       await loadStoredLanguage();
@@ -193,11 +194,10 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <Animated.Image
-        source={require("../../assets/yuvarajscaffoldinglogo.png")}
+        source={require("../../assets/yuvLog.png")}
         style={[styles.logo, { transform: [{ scale: scaleAnim }] }]}
         resizeMode="contain"
       />
-
       <View style={styles.loader}>
         <AnimatedDot />
         <AnimatedDot delay />
@@ -208,23 +208,13 @@ export default function SplashScreen() {
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: COLORS.primary,
-    justifyContent: "center",
+    flex: 1,    backgroundColor: COLORS.white,    justifyContent: "center",
     alignItems: "center",
   },
-  logo: {
-    width: wp(90),
-    height: hp(45),
-    marginBottom: hp(5),
+  logo: {    height: hp(45),  },  loader: {
+    flexDirection: "row",    marginTop: 10,
   },
-  loader: {
-    flexDirection: "row",
-    marginTop: 10,
-  },
-  dot: {
-    width: wp(3),
-    height: wp(3),
+  dot: {    width: wp(3),    height: wp(3),
     borderRadius: wp(1.5),
     backgroundColor: COLORS.white,
   },

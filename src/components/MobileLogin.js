@@ -23,10 +23,9 @@ export default function MobileLogin() {
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
 
-
   useEffect(() => {
     if (__DEV__) {
-      setPhone("9943904056");
+      setPhone("9342020530");
     }
     loadTranslationsFromAPI("en");
   }, []);
@@ -94,7 +93,6 @@ export default function MobileLogin() {
               placeholderTextColor="#999"
             />
           </View>
-
           {error ? <Text style={styles.errorText}>{t(error)}</Text> : null}
 
           {/* Button */}
@@ -144,10 +142,12 @@ const styles = StyleSheet.create({
   },
   countryCodeText: {
     fontSize: wp(4), color: "#000",
-    fontFamily: "Poppins_600SemiBold", lineHeight: hp(2)
+    fontFamily: "Poppins_600SemiBold", lineHeight: hp(6)
   },
   input: {
     height: "100%", color: "#000", paddingHorizontal: wp(2),
+    fontSize: wp(3.5),
+  fontFamily: "Poppins_400Regular",
   },
   errorText: {
     width: wp(90), color: "red", marginBottom: hp(1),

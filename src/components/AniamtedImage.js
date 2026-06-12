@@ -35,7 +35,7 @@ export default function LogoAnimated() {
     // siteDetails?.logo_image && !error
     //   ? 
     //   { uri: siteDetails.logo_image }      : 
-      require("../../assets/yuvIcon.png");
+      require("../../assets/images/yuvarajscaffoldi.png");
   return (
     <View style={styles.container}>
       {loading && (

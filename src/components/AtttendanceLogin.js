@@ -142,7 +142,6 @@ export default function AttendanceLoginScreen() {
                 showBackButton={false}
             // onBackPress={() => navigation.goBack()}
             />
-
             <View style={styles.contentContainer}>
                 {/* Camera Card */}
                 <View style={styles.cameraCard}>
@@ -175,6 +174,11 @@ export default function AttendanceLoginScreen() {
                     style={[
                         styles.captureButton,
                         loading && { opacity: 0.7 },
+                        {
+                            borderWidth: wp(1),
+                            borderColor: COLORS.primary + '55',
+                            borderRadius: wp(5),
+                        }
                     ]}
                     onPress={captureAndUpload}
                     disabled={loading}
@@ -320,7 +324,10 @@ const styles = StyleSheet.create({
         borderRadius: 18, minWidth: wp(65), shadowColor: "#2563EB", shadowOffset: { width: 0, height: 6, },
         shadowOpacity: 0.35, shadowRadius: 8, elevation: 10,
     }, captureButtonText: {
-        color: "#fff", fontSize: 16, fontWeight: "700", marginLeft: 8,
+        color: "#fff", fontSize: wp(4.6),
+        fontFamily: "Poppins_600SemiBold",
+        marginLeft: hp(2), lineHeight: hp(2),
+
     }, center: {
         flex: 1, justifyContent: "center", alignItems: "center",
     }, loaderContainer: {
@@ -343,7 +350,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         flex: 1,
-        padding: 5,
+        padding: wp(2),
         justifyContent: "center",
     },
     cameraCard: {
@@ -351,41 +358,18 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         borderRadius: wp(5),
         overflow: "hidden",
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 5,
-        },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-
-        elevation: 8,
     },
-
     camera: {
         flex: 1,
     },
-
     logButton: {
         marginTop: wp(5),
         backgroundColor: "#fff",
-        borderRadius: 16,
+        borderRadius: wp(4),
         paddingVertical: wp(5),
-
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "row",
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.08,
-        shadowRadius: 5,
-
-        elevation: 4,
     },
 
     logButtonText: {
@@ -395,7 +379,7 @@ const styles = StyleSheet.create({
         color: "#2563EB",
     },
     captureButton: {
-        marginTop: wp(2),
+        marginTop: wp(4),
         backgroundColor: COLORS.primary,
         borderRadius: wp(4),
         paddingVertical: wp(7),
@@ -414,10 +398,4 @@ const styles = StyleSheet.create({
         elevation: 8,
     },
 
-    captureButtonText: {
-        color: "#fff",
-        marginLeft: 8,
-        fontSize: 16,
-        fontWeight: "700",
-    },
 });
