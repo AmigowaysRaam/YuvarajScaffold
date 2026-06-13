@@ -84,8 +84,6 @@ export default function Attendance() {
         <View style={{ padding: wp(4) }}>
           <AttendanceSummary summary={summary} />
         </View>
-
-        {/* Attendance List */}
         {loginData.length === 0 ? (
           <Text style={styles.emptyText}>{t("No attendance records found")}</Text>
         ) : (
@@ -101,13 +99,10 @@ export default function Attendance() {
                   { backgroundColor: statusColor + "15", borderColor: statusColor + "15" },
                 ]}
               >
-                {/* Date Box */}
                 <View style={[styles.dateBox, { backgroundColor: statusColor + "15" }]}>
                   <Text style={[styles.dayText, { color: statusColor }]}>{dayName}</Text>
                   <Text style={[styles.dateTextBox, { color: statusColor }]}>{dateNum}</Text>
                 </View>
-
-                {/* Details */}
                 <View style={styles.detailsContainer}>
                   <Text style={styles.fullDate}>{dayjs(item.date).format("DD MMM YYYY")}</Text>
                   <View style={styles.timeRow}>

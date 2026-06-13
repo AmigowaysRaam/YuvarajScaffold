@@ -23,7 +23,7 @@ import { BASE_URL, fetchData } from "./api/Api";
 import StatusSelectModal from "./statusSelectModal";
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const ShowTaskDetailModal = ({ visible, task, onClose, getStatusColor ,onRefresh}) => {
+const ShowTaskDetailModal = ({ visible, task, onClose, getStatusColor, onRefresh }) => {
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const [showModal, setShowModal] = useState(visible);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -58,7 +58,7 @@ const ShowTaskDetailModal = ({ visible, task, onClose, getStatusColor ,onRefresh
           user_id: profileDetails?.id,
         });
         if (!response?.data?.ticket_detail?.status) {
-          navigation?.goBack();
+          navigation?.canGoBack() && navigation.goBack();
         }
         setstatusList(response?.data?.ticketStatus);
       } catch (err) {
@@ -312,7 +312,7 @@ const ShowTaskDetailModal = ({ visible, task, onClose, getStatusColor ,onRefresh
                 fontSize: wp(4.8),
                 fontFamily: "Poppins_700Bold",
                 color: "#222",
-                flexShrink: 1,textTransform:"capitalize",lineHeight:wp(6)
+                flexShrink: 1, textTransform: "capitalize", lineHeight: wp(6)
               }}
               numberOfLines={1}
             >

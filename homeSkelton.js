@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, Dimensions, FlatList, StyleSheet, View } from "react-native";
+import { Animated, Dimensions, StyleSheet, View } from "react-native";
 import { COLORS } from "./app/resources/colors";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const wp = (percentage) => (SCREEN_WIDTH * percentage) / 100;
@@ -68,18 +68,34 @@ const HomeLoader = () => {
             <View style={[styles.banner, {
             }]}>
                 <Skeleton
-                    width={SCREEN_WIDTH - 20} height={hp(15)} borderRadius={10} />
+                    width={SCREEN_WIDTH - 20} height={hp(10)} borderRadius={10} />
             </View>
-            <FlatList
-                data={products}
-                renderItem={renderProduct}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                columnWrapperStyle={{ justifyContent: "space-between", marginBottom: hp(2) }}
-                contentContainerStyle={{ paddingHorizontal: 10, paddingTop: 10 }}
-            />
+            <View style={[styles.banner, {
+            }]}>
+                <Skeleton
+                    width={SCREEN_WIDTH - 20} height={hp(4)} borderRadius={10} />
+            </View>
+            <View style={[styles.banner, {
+            }]}>
+                <Skeleton
+                    width={SCREEN_WIDTH - 20} height={hp(4)} borderRadius={10} />
+            </View>
+            <View style={[styles.banner, {
+            }]}>
+                <Skeleton
+                    width={SCREEN_WIDTH - 20} height={hp(10)} borderRadius={10} />
+            </View>
+            <View style={[styles.banner, {
+            }]}>
+                <Skeleton
+                    width={SCREEN_WIDTH - 20} height={hp(10)} borderRadius={10} />
+            </View>
+            <View style={[styles.banner, {
+            }]}>
+                <Skeleton
+                    width={SCREEN_WIDTH - 20} height={hp(10)} borderRadius={10} />
+            </View>
 
-            <Skeleton width={wp(95)} height={hp(10)} borderRadius={10} />
         </View>
     );
 };

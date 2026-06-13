@@ -1,4 +1,4 @@
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -43,6 +43,12 @@ export default function AttendanceActivity() {
   useEffect(() => {
     loadEmployees();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadEmployees();
+    }, [])
+  );
 
   const loadEmployees = async () => {
     try {

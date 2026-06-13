@@ -4,7 +4,7 @@ import {
     StyleSheet, Text, View,
 } from "react-native";
 import { hp, wp } from "../app/resources/dimensions";
-const appIcon = require("../assets/yuvIcon.png");
+const appIcon = require("../assets/yuvarajscaffolding-appicon.png");
 const ToastContext = createContext();
 export const useToast = () => useContext(ToastContext);
 

@@ -2,12 +2,8 @@ import { useNavigation } from "@react-navigation/native";
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
+  FlatList, Pressable, RefreshControl, StyleSheet,
+  Text, View,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { useSelector } from "react-redux";
@@ -16,12 +12,10 @@ import { hp, wp } from "../../app/resources/dimensions";
 import { fetchData } from "./api/Api";
 import CommonHeader from "./CommonHeader";
 import CustomDropdownData from "./CustomDropDownwihtUI";
-import PayrollTbHead from "./PayrollTbHead";
 
 export default function PayrollLogScreen({ route }) {
   const navigation = useNavigation();
   const { hData } = route?.params;
-
   const [refreshing, setRefreshing] = useState(false);
   const [payrollData, setPayrollData] = useState([]);
   const [scrollY, setScrollY] = useState(0);
@@ -32,8 +26,6 @@ export default function PayrollLogScreen({ route }) {
 
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const flatListRef = useRef();
-
-  const showFixedHeader = scrollY > hp(8);
   const profileDetails = useSelector(
     (state) => state?.auth?.profileDetails?.data
   );
@@ -139,18 +131,17 @@ export default function PayrollLogScreen({ route }) {
           <Icon type="feather" name="calendar" size={wp(5)} color="#fff" />
         </Pressable>
       </View>
-      <PayrollTbHead style={styles.fixedHeader} />
       <FlatList
-      ListEmptyComponent={
-        !refreshing && (
-          <Text style={{
-            textAlign: "center", marginTop: hp(10),
-            fontFamily: 'Poppins_600SemiBold'
-          }}>
-            No payroll records found.
-          </Text>
-        )
-      }
+        ListEmptyComponent={
+          !refreshing && (
+            <Text style={{
+              textAlign: "center", marginTop: hp(10),
+              fontFamily: 'Poppins_600SemiBold'
+            }}>
+              No payroll records found.
+            </Text>
+          )
+        }
         ref={flatListRef}
         data={payrollData}
         keyExtractor={(item) => item.id.toString()}

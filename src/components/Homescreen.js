@@ -2,26 +2,27 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  RefreshControl, ScrollView, StyleSheet, Text, View
+  Pressable, RefreshControl, ScrollView, StyleSheet, Text, View
 } from "react-native";
 import { useSelector } from "react-redux";
 import { getStoredLanguage } from "../../app/i18ns";
 import { COLORS } from "../../app/resources/colors";
+import { wp } from "../../app/resources/dimensions";
 import HomeSkeleton from "../../homeSkelton";
 import { fetchData } from "./api/Api";
 import AssignedTask from "./AssignedTask";
 import AttendanceDetails from "./AttendanceDetails";
 import Banner from "./Banner";
 import Header from "./Header";
-import HomeMenuRow from "./HomeMenuRow";
 import InAppNotificationModal from "./InappNotification";
 import LanguageMenu from "./LanguageMenu";
 import MyTask from "./MyTask";
 import PunchCard from "./PunchCard";
 import SideMenu from "./Sidemenu";
 import TaskRow from "./TaskRow";
+
 export default function Homescreen() {
-  
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [langMenuMOdal, setOpenLangMenu] = useState(false);
   const [punchLoading, setpunchLoading] = useState(false);
@@ -39,8 +40,8 @@ export default function Homescreen() {
   const profileDetails = useSelector(
     (state) => state?.auth?.profileDetails?.data
   );
+
   useEffect(() => {
-    // Alert.alert('',JSON.stringify(profileDetails));
     getStoredLanguage().then((storedLang) => {
       setLang(storedLang || "en");
     });
@@ -63,6 +64,9 @@ export default function Homescreen() {
         response?.text === "Fetched successfully"
       ) {
         // Alert.alert(JSON.stringify(response));
+        // response [{"header_image": "https://hrms.yuvarajscaffoldingtraders.com/assets/images/home-banner/kas-silver-jubilee.png", "section": "header_image"}, {"employee_details": {"date": "11-06-2026", "designation": "", "employee_id": "Emp-045", "employee_status": "Active", "name": "Gowtham ", "time": "01:41 PM", "welcome_text": "Good Noon"}, "section": "employee_details"}, {"section": "my_tasks", "today_tasks": {"completed": "0", "count": "0", "in_progress": "0", "open": "0", "over_due": "0", "re_work": "0", "waiting_for_approval": "0"}, "total_tasks": {"completed": "0", "count": "0", "in_progress": "0", "open": "0", "over_due": "0", "re_work": "0", "waiting_for_approval": "0"}}, {"section": "assign_tasks", "today_tasks": {"completed": "0", "count": "0", "in_progress": "0", "open": "0", "over_due": "0", "re_work": "0", "waiting_for_approval": "0"}, "total_tasks": {"completed": "0", "count": "0", "in_progress": "0", "open": "0", "over_due": "0", "re_work": "0", "waiting_for_approval": "0"}}]
+
+        console.log('response', JSON.stringify(response?.data))
         setHomepageData(response.data);
       } else {
         console.warn("HOMEAPI returned failure:", response);
@@ -74,18 +78,17 @@ export default function Homescreen() {
       setRefreshing(false);
     }
   };
-  /* ✅ INITIAL LOAD (ONCE) */
   useEffect(() => {
     fetchHomepageData();
     // Alert.alert("Welcome!",JSON.stringify(profileDetails));
 
-  }, [profileDetails?.id, lang]);
+  }, [profileDetails?.id, lang, punchLoading]);
   useFocusEffect(
     useCallback(() => {
       fetchHomepageData();
     }, [profileDetails?.id, lang])
   );
-  
+
   /* 🔔 RELOAD API WHEN NOTIFICATION ARRIVES */
   // useEffect(() => {
   //   // Foreground notification
@@ -116,18 +119,21 @@ export default function Homescreen() {
         openLanguageMenu={() => setOpenLangMenu(true)}
         notificationCount={homepageData?.notification_count}
       />
-      {/* <Pressable onPress={() => navigation.navigate('AttendanceLoginScreen')} style={{
-        padding: wp(4), borderColor: COLORS?.primary, width: wp(95), alignSelf: "center",
-        borderRadius: wp(10), borderWidth: wp(2), backgroundColor: COLORS?.primary + '40', marginVertical: hp(0.5),
-        alignSelf: "center", alignItems: "center",
-      }}>
-        <Text style={{
-          color: COLORS?.primary,
-          fontFamily: "Poppins_500Medium",
+      {
+        __DEV__ &&
+        <Pressable onPress={() => navigation.navigate('AttendanceLoginScreen')} style={{
+          padding: wp(4), borderColor: COLORS?.primary, width: wp(95), alignSelf: "center",
+          borderRadius: wp(10), borderWidth: wp(2), backgroundColor: COLORS?.primary + '40', marginVertical: wp(0.5),
+          alignSelf: "center", alignItems: "center",
         }}>
-          Mark Attendance
-        </Text>
-      </Pressable> */}
+          <Text style={{
+            color: COLORS?.primary,
+            fontFamily: "Poppins_500Medium",
+          }}>
+            Mark Attendance
+          </Text>
+        </Pressable>
+      }
       <ScrollView
         style={styles.scrollContainer}
         refreshControl={
@@ -145,9 +151,9 @@ export default function Homescreen() {
         ) : homepageData ? (
           <>
             <Banner homepageData={homepageData} />
-            <AttendanceDetails homepageData={homepageData} />
             <PunchCard homepageData={homepageData} onLoading={setpunchLoading} />
-            <HomeMenuRow homepageData={homepageData} />
+            <AttendanceDetails homepageData={homepageData} />
+            {/* <HomeMenuRow homepageData={homepageData} /> */}
             <TaskRow homepageData={homepageData} />
             <MyTask homepageData={homepageData} />
             <AssignedTask homepageData={homepageData} />

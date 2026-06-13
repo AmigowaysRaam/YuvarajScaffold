@@ -174,11 +174,6 @@ export default function AttendanceLoginScreen() {
                     style={[
                         styles.captureButton,
                         loading && { opacity: 0.7 },
-                        {
-                            borderWidth: wp(1),
-                            borderColor: COLORS.primary + '55',
-                            borderRadius: wp(5),
-                        }
                     ]}
                     onPress={captureAndUpload}
                     disabled={loading}

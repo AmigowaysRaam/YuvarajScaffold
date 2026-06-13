@@ -25,7 +25,7 @@ export default function MobileLogin() {
 
   useEffect(() => {
     if (__DEV__) {
-      setPhone("9342020530");
+      setPhone("9943904056");
     }
     loadTranslationsFromAPI("en");
   }, []);

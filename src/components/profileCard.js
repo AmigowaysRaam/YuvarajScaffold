@@ -11,9 +11,7 @@ import { COLORS } from "../../app/resources/colors";
 import { wp } from "../../app/resources/dimensions";
 import { fetchData } from "./api/Api";
 import { setProfileDetails } from "./store/store";
-
 const ProfileCard = ({ onClose, loadingMenu, onEditProfile }) => {
-
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const profileDetails = useSelector(
@@ -24,7 +22,6 @@ const ProfileCard = ({ onClose, loadingMenu, onEditProfile }) => {
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
   const skeletonAnim = useRef(new Animated.Value(0.3)).current;
   const navigation = useNavigation();
-
   const animateCard = () => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -193,12 +190,11 @@ const styles = StyleSheet.create({
     width: wp(17), height: wp(17), borderRadius: wp(8.5), justifyContent: "center", alignItems: "center", marginRight: wp(2),
   }, profileIcon: {
     width: wp(16), height: wp(16), borderRadius: wp(8.5), resizeMode: "cover",
+    borderWidth: wp(0.4), borderColor: COLORS?.primary
   }, editIcon: {
     position: "absolute", top: -1, right: wp(-2), width: wp(6), height: wp(6), borderRadius: wp(3),
-    backgroundColor: COLORS.primary, justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: COLORS.primary, justifyContent: "center", alignItems: "center",
   }, closeButton: {
-    width: wp(8), height: wp(8), justifyContent: "center", alignItems: "center",
-    marginLeft: wp(2),
+    width: wp(8), height: wp(8), justifyContent: "center", alignItems: "center", marginLeft: wp(2),
   },
 });

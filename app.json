@@ -57,6 +57,13 @@
       "eas": {
         "projectId": "98da5af2-4a84-4eaa-9528-46861b536c05"
       }
+    },
+    "splash": {
+      "image": "./assets/images/yuvarajscaffolding-appicon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
     }
+
   }
+  
 }

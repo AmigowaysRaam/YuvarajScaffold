@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -163,7 +164,11 @@ export default function ChangeMpin() {
       );
       if (response?.text === "Success") {
         showToast(response?.message, "success");
-        navigation.goBack();
+        await AsyncStorage.clear();
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "MobileLogin" }],
+        });
       } else {
         setError(response?.message || "Failed to update MPIN");
         showToast(response?.message, "error");

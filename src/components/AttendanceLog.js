@@ -59,8 +59,7 @@ export default function AttendanceLog({ route }) {
           year: selectedYear,
         }
       );
-  
-      console.log("API Response", JSON.stringify(response));
+      // console.log("API Response", JSON.stringify(response));
       if (response?.success) {
         const attendanceData =
           response?.attendance?.map((item) => ({

@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -184,15 +185,19 @@ export default function MyTaskListScreen({ route }) {
         {/* <Text style={{ color: COLORS.primary, fontFamily: "Poppins_400Regular", fontSize: wp(3.5), marginHorizontal: wp(4), marginTop: hp(1) }}>
           {JSON.stringify(route?.params)}
         </Text> */}
-        <SearchContainer
-          value={searchText}
-          onChangeText={(t) => { setSearchText(t) }}
-          placeholder={`${t("search_task")}...`}
-          selectedStatuss={selectedStatus}
-          onStatusSelect={handleStatusSelect}
-          modalVisible={modalVisible}
-          clearSearch={() => setSearchText("")}
-        />
+        {
+          tasks?.length > 0 &&
+          <SearchContainer
+            value={searchText}
+            onChangeText={(t) => { setSearchText(t) }}
+            placeholder={`${t("search_task")}...`}
+            selectedStatuss={selectedStatus}
+            onStatusSelect={handleStatusSelect}
+            modalVisible={modalVisible}
+            clearSearch={() => setSearchText("")}
+          />
+        }
+
         {loading && page === 1 ? (
           <FlatList
             data={[1, 2, 3, 4, 5]}
@@ -211,19 +216,21 @@ export default function MyTaskListScreen({ route }) {
                   </View>
                 ) : null
             }
-            ListHeaderComponent={<>
-              <DateandDownloadTask
-                taskFlag={'myTask'}
-                fromDate={selectedDateRange.from}
-                toDate={selectedDateRange.to}
-                onDateSelect={(range) => {
-                  setSelectedDateRange(range);
-                  setHasMore(true);
-                  fetchTasks(1, true, selectedStatus, range);  // pass range explicitly
-                }}
-                onDownload={() => showToast('Task list download is in progress...', 'info')}
-              />
-            </>}
+            ListHeaderComponent={
+              tasks?.length > 0 &&
+              <>
+                <DateandDownloadTask
+                  taskFlag={'myTask'}
+                  fromDate={selectedDateRange.from}
+                  toDate={selectedDateRange.to}
+                  onDateSelect={(range) => {
+                    setSelectedDateRange(range);
+                    setHasMore(true);
+                    fetchTasks(1, true, selectedStatus, range);  // pass range explicitly
+                  }}
+                  onDownload={() => showToast('Task list download is in progress...', 'info')}
+                />
+              </>}
             data={tasks}
             keyExtractor={(item) => item?.id}
             renderItem={({ item }) => (
@@ -250,6 +257,15 @@ export default function MyTaskListScreen({ route }) {
             ListEmptyComponent={
               !loading && (
                 <View style={{ alignItems: "center", marginTop: hp(5) }}>
+                  <Ionicons
+                    name="close"
+                    size={wp(20)}
+                    color="#CCC"
+                    style={{
+                      alignSelf: "center",
+                      marginTop: hp(5),
+                    }}
+                  />
                   <Text style={{ color: COLORS.gray, fontFamily: "Poppins_600SemiBold" }}>
                     {t('no_tasks_found')}
                   </Text>
@@ -261,7 +277,7 @@ export default function MyTaskListScreen({ route }) {
         <ShowTaskDetailModal
           visible={modalVisible}
           task={selectedTask}
-          onClose={() => { setModalVisible(false)}}
+          onClose={() => { setModalVisible(false) }}
           getStatusColor={getStatusColor}
           statusList={[]}
           onRefresh={onRefresh}

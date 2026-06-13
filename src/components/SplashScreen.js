@@ -8,6 +8,7 @@ import {
   Alert, Animated, Easing, Platform, StyleSheet,
   View,
 } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 import {
   canScheduleExactAlarms, canUseFullScreenIntent, openFullScreenIntentSettings,
 } from "react-native-reminder-notifier";
@@ -198,6 +199,7 @@ export default function SplashScreen() {
         style={[styles.logo, { transform: [{ scale: scaleAnim }] }]}
         resizeMode="contain"
       />
+      <ActivityIndicator />
       <View style={styles.loader}>
         <AnimatedDot />
         <AnimatedDot delay />
@@ -208,13 +210,14 @@ export default function SplashScreen() {
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,    backgroundColor: COLORS.white,    justifyContent: "center",
+    flex: 1, backgroundColor: COLORS.white, justifyContent: "center",
     alignItems: "center",
   },
-  logo: {    height: hp(45),  },  loader: {
-    flexDirection: "row",    marginTop: 10,
+  logo: { height: hp(45), }, loader: {
+    flexDirection: "row", marginTop: 10,
   },
-  dot: {    width: wp(3),    height: wp(3),
+  dot: {
+    width: wp(3), height: wp(3),
     borderRadius: wp(1.5),
     backgroundColor: COLORS.white,
   },

@@ -1,25 +1,30 @@
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import React, {
   useCallback, useEffect, useMemo, useRef, useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator, Animated, Modal, Pressable, StyleSheet, Text,
-  View,
+  ActivityIndicator, Animated, Modal, Pressable, StyleSheet, Text, View,
 } from "react-native";
 import { Icon } from "react-native-elements";
+import { useSelector } from "react-redux";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
 import { useToast } from "../../constants/ToastContext";
-
+import { fetchData } from "./api/Api";
 export const PunchCard = React.memo(({ onLoading }) => {
-  
   const { t } = useTranslation();
   const { showToast } = useToast();
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const [allowPunchIn, setallowPunchIn] = useState(false);
+
+  const [loginTime, setloginTime] = useState(false);
+  const [logoutTime, setlogoutTime] = useState(false);
+
+  const navigation = useNavigation();
   useEffect(() => {
     const interval = setInterval(
       () => setCurrentTime(new Date()),
@@ -27,17 +32,53 @@ export const PunchCard = React.memo(({ onLoading }) => {
     );
     return () => clearInterval(interval);
   }, []);
+
   const translateY = useRef(new Animated.Value(hp(5))).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const pressScale = useRef(new Animated.Value(1)).current;
   const cardScale = useRef(new Animated.Value(1)).current;
   const activeAnim = useRef(new Animated.Value(0)).current;
   const glowOpacity = useRef(new Animated.Value(0)).current;
+  const profileDetails = useSelector(
+    (state) => state?.auth?.profileDetails?.data
+  );
+
+
+
+  const getPUnchinCard = async () => {
+    try {
+      const response = await fetchData(
+        "mobile-punch-status",
+        "POST",
+        {
+          employeeId: profileDetails.id,
+        }
+      );
+      console.log(response, "mobile-punch-status")
+      // {"employee": {"employeeId": "Emp-045", "employeeImage": "image-1781184348545-277529901.png", "id": "6a2a6d481a97a14713b20567", "name": "Gowtham "}, "is_punched_in": false, "mobileAttendanceEnabled": true, "success": true} mobile-punch-status
+      // After Punch in 
+      // {"employee": {"employeeId": "Emp-045", "employeeImage": "image-1781184348545-277529901.png", "id": "6a2a6d481a97a14713b20567", "name": "Gowtham "}, "is_punched_in": true, "mobileAttendanceEnabled": true, "success": true} mobile-punch-status
+      // {"employee": {"employeeId": "Emp-045", "employeeImage": "image-1781184348545-277529901.png", "id": "6a2a6d481a97a14713b20567", "name": "Gowtham "}, "is_punched_in": false, "login_time": "10:34 am", "logout_time": "10:38 am", "mobileAttendanceEnabled": true, "success": true} mobile-punch-status
+      if (response?.success) {
+        setallowPunchIn(response.mobileAttendanceEnabled);
+        setIsPunchedIn(response.is_punched_in);
+        // setloginTime setlogoutTime
+        setloginTime(response?.login_time)
+        setlogoutTime(response?.logout_time)
+
+      }
+    } catch (error) {
+      console.error("error API Error:", error);
+    } finally {
+
+    }
+  }
+
+
   useFocusEffect(
     useCallback(() => {
       translateY.setValue(hp(5));
       opacity.setValue(0);
-
       Animated.parallel([
         Animated.timing(translateY, {
           toValue: 0,
@@ -52,6 +93,13 @@ export const PunchCard = React.memo(({ onLoading }) => {
       ]).start();
     }, [translateY, opacity])
   );
+
+  useFocusEffect(
+    useCallback(() => {
+      getPUnchinCard();
+    }, [])
+  );
+
   useEffect(() => {
     Animated.parallel([
       Animated.spring(activeAnim, {
@@ -118,22 +166,27 @@ export const PunchCard = React.memo(({ onLoading }) => {
     setConfirmVisible(false);
     setLoading(true);
     onLoading?.(true);
-
     try {
-      await new Promise(resolve =>
-        setTimeout(resolve, 1200)
+      const punchType = isPunchedIn ? "out" : "in";
+
+      const response = await fetchData(
+        "mobile-punch-mark",
+        "POST",
+        {
+          employeeId: profileDetails.id,
+          type: punchType,
+        }
       );
+      console.log(response, "mobile-punch-mark")
+      if (response?.success) {
+        console.log('pnchin', response)
+        // {"employee": {"employeeId": "Emp-045", "employeeImage": "image-1781184348545-277529901.png", "id": "6a2a6d481a97a14713b20567", "name": "Gowtham "}, "is_punched_in": true, "mobileAttendanceEnabled": true, "success": true} mobile-punch-status
+        showToast(response?.message, 'success')
+        setIsPunchedIn(response.is_punched_in);
 
-      const nextState = !isPunchedIn;
+      }
 
-      setIsPunchedIn(nextState);
 
-      showToast(
-        nextState
-          ? "Successfully punched in"
-          : "Successfully punched out",
-        "success"
-      );
     } catch {
       showToast("Something went wrong", "error");
     } finally {
@@ -142,7 +195,6 @@ export const PunchCard = React.memo(({ onLoading }) => {
     }
   }, [isPunchedIn, onLoading, showToast]);
 
-  /* -------------------- Derived Values -------------------- */
   const formattedDate = useMemo(
     () => currentTime.toDateString(),
     [currentTime]
@@ -181,167 +233,209 @@ export const PunchCard = React.memo(({ onLoading }) => {
     : "Are you sure you want to punch in and start your work day?";
 
   return (
-    <>
-      <Animated.View
-        style={[
-          styles.card,
-          {
-            opacity,
-            transform: [
-              { translateY },
-              { scale: cardScale },
-            ],
-          },
-        ]}
-      >
-        <View style={styles.leftContainer}>
-          <Text style={styles.dateText}>
-            {formattedDate}
-          </Text>
+    !allowPunchIn ?
+      null
+      :
+      <>
+        <Animated.View
+          style={[
+            styles.card,
+            {
+              opacity,
+              transform: [
+                { translateY },
+                { scale: cardScale },
+              ],
+            },
+          ]}
+        >
+          <View style={styles.leftContainer}>
+            <Text style={styles.dateText}>
+              {formattedDate}
+            </Text>
 
-          <Text style={styles.timeText}>
-            {formattedTime}
-          </Text>
-        </View>
+            <Text style={styles.timeText}>
+              {formattedTime}
+            </Text>
 
-        <View style={styles.buttonOuter}>
-          <Animated.View
-            style={[
-              styles.glow,
-              {
-                opacity: glowOpacity,
-                backgroundColor: isPunchedIn
-                  ? COLORS.accent
-                  : COLORS.primary,
-              },
-            ]}
-          />
+            {
+              loginTime &&
+              <Text style={[styles.timeText, {
+                fontFamily: "Poppins_600SemiBold", fontSize: wp(4),
+              }]}>
+                {`Login@ ${loginTime}`}
+              </Text>
+            }
 
-          <Animated.View
-            style={{
-              transform: [{ scale: pressScale }],
-            }}
-          >
-            <Pressable
-              disabled={loading}
-              onPress={handlePunchPress}
-            >
+            {
+              logoutTime &&
+              <Text style={[styles.timeText, {
+                fontFamily: "Poppins_600SemiBold", fontSize: wp(4)
+              }]}>
+                {`Logout@ ${logoutTime}`}
+              </Text>
+            }
+
+          </View>
+          <View style={styles.rightSection}>
+            {/* isPunchedIn */}
+            <View style={styles.buttonOuter}>
               <Animated.View
                 style={[
-                  styles.roundButton,
-                  { backgroundColor },
+                  styles.glow,
+                  {
+                    opacity: glowOpacity,
+                    backgroundColor: isPunchedIn
+                      ? COLORS.accent
+                      : COLORS.primary,
+                  },
                 ]}
+              />
+
+              <Animated.View
+                style={{
+                  transform: [{ scale: pressScale }],
+                }}
               >
-                {loading ? (
-                  <ActivityIndicator
-                    size="large"
-                    color={COLORS.white}
-                  />
-                ) : (
-                  <>
-                    <Animated.View
-                      style={{
-                        transform: [{ rotate }],
-                      }}
-                    >
-                      <Icon
-                        name={
-                          isPunchedIn
-                            ? "logout"
-                            : "login"
-                        }
-                        size={wp(6)}
+                <Pressable
+                  disabled={loading}
+                  onPress={handlePunchPress}
+                >
+                  <Animated.View
+                    style={[
+                      styles.roundButton,
+                      { backgroundColor },
+                    ]}
+                  >
+                    {loading ? (
+                      <ActivityIndicator
+                        size="large"
                         color={COLORS.white}
                       />
-                    </Animated.View>
+                    ) : (
+                      <>
+                        <Animated.View
+                          style={{
+                            transform: [{ rotate }],
+                          }}
+                        >
+                          <Icon
+                            name={
+                              isPunchedIn
+                                ? "logout"
+                                : "login"
+                            }
+                            size={wp(6)}
+                            color={COLORS.white}
+                          />
+                        </Animated.View>
 
-                    <Text style={styles.buttonText}>
-                      {modalTitle}
-                    </Text>
-                  </>
-                )}
+                        <Text style={styles.buttonText}>
+                          {modalTitle}
+                        </Text>
+                      </>
+                    )}
+                  </Animated.View>
+                </Pressable>
               </Animated.View>
+            </View>
+            <Pressable
+              style={styles.attendanceButton}
+              onPress={() =>
+                navigation?.navigate("AttendanceLog", {
+                  hData: null,
+                })
+              }
+            >
+              <Icon
+                name="history"
+                type="material"
+                size={18}
+                color={COLORS.primary}
+              />
+              <Text style={styles.attendanceButtonText}>
+                Attendance Log
+              </Text>
             </Pressable>
-          </Animated.View>
-        </View>
-      </Animated.View>
-
-      <Modal
-        visible={confirmVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() =>
-          setConfirmVisible(false)
-        }
-      >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() =>
+          </View>
+        </Animated.View>
+        <Modal
+          visible={confirmVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() =>
             setConfirmVisible(false)
           }
         >
-          <Pressable style={styles.modalContainer}>
-            <View
-              style={[
-                styles.modalIconContainer,
-                {
-                  backgroundColor: `${modalColor}25`,
-                },
-              ]}
-            >
-              <Icon
-                name={
-                  isPunchedIn
-                    ? "logout"
-                    : "login"
-                }
-                size={32}
-                color={modalColor}
-              />
-            </View>
-
-            <Text style={styles.modalTitle}>
-              {modalTitle}
-            </Text>
-
-            <Text style={styles.modalMessage}>
-              {modalMessage}
-            </Text>
-
-            <View style={styles.modalButtonRow}>
-              <Pressable
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() =>
+              setConfirmVisible(false)
+            }
+          >
+            <Pressable style={styles.modalContainer}>
+              <View
                 style={[
-                  styles.modalButton,
-                  styles.cancelButton,
-                ]}
-                onPress={() =>
-                  setConfirmVisible(false)
-                }
-              >
-                <Text style={styles.cancelText}>
-                  {t("cancel")}
-                </Text>
-              </Pressable>
-
-              <Pressable
-                style={[
-                  styles.modalButton,
-                  styles.confirmButton,
+                  styles.modalIconContainer,
                   {
-                    backgroundColor: modalColor,
+                    backgroundColor: `${modalColor}25`,
                   },
                 ]}
-                onPress={handleConfirmPunch}
               >
-                <Text style={styles.confirmText}>
-                  {t("confirm")}
-                </Text>
-              </Pressable>
-            </View>
+                <Icon
+                  name={
+                    isPunchedIn
+                      ? "logout"
+                      : "login"
+                  }
+                  size={32}
+                  color={modalColor}
+                />
+              </View>
+
+              <Text style={styles.modalTitle}>
+                {modalTitle}
+              </Text>
+
+              <Text style={styles.modalMessage}>
+                {modalMessage}
+              </Text>
+
+              <View style={styles.modalButtonRow}>
+                <Pressable
+                  style={[
+                    styles.modalButton,
+                    styles.cancelButton,
+                  ]}
+                  onPress={() =>
+                    setConfirmVisible(false)
+                  }
+                >
+                  <Text style={styles.cancelText}>
+                    {t("cancel")}
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  style={[
+                    styles.modalButton,
+                    styles.confirmButton,
+                    {
+                      backgroundColor: modalColor,
+                    },
+                  ]}
+                  onPress={handleConfirmPunch}
+                >
+                  <Text style={styles.confirmText}>
+                    {t("confirm")}
+                  </Text>
+                </Pressable>
+              </View>
+            </Pressable>
           </Pressable>
-        </Pressable>
-      </Modal>
-    </>
+        </Modal>
+      </>
+
   );
 });
 
@@ -351,7 +445,7 @@ const styles = StyleSheet.create({
   card: {
     width: wp(95),
     alignSelf: "center",
-    marginTop: hp(2),
+    marginTop: hp(1),
     padding: wp(4),
     backgroundColor: COLORS.ashGrey,
     borderRadius: wp(3),
@@ -384,6 +478,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
+  }, rightSection: {
+    alignItems: "center",
+  },
+
+  attendanceButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: hp(1.5),
+    paddingHorizontal: wp(3.5),
+    paddingVertical: hp(0.8),
+    borderRadius: wp(6),
+    backgroundColor: "#F5F7FA",
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+  },
+
+  attendanceButtonText: {
+    marginLeft: wp(1.5),
+    color: COLORS.primary,
+    fontSize: wp(3.2),
+    fontFamily: "Poppins_600SemiBold",
   },
 
   glow: {
@@ -472,12 +588,10 @@ const styles = StyleSheet.create({
   confirmButton: {
     marginLeft: wp(2),
   },
-
   cancelText: {
     color: "#555",
     fontFamily: "Poppins_600SemiBold",
   },
-
   confirmText: {
     color: "#FFF",
     fontFamily: "Poppins_600SemiBold",

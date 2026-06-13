@@ -84,7 +84,6 @@ function CustomTabBar({ state, navigation, menus }) {
   const tabWidth = wp(100) / menus.length;
 
   useEffect(() => {
-    
     Animated.spring(indicatorAnim, {
       toValue: state.index * tabWidth,
       useNativeDriver: true,
@@ -118,7 +117,7 @@ function CustomTabBar({ state, navigation, menus }) {
               styles.tabItem,
               {
                 backgroundColor: isFocused ? "#FFF" : "transparent",
-                borderRadius: isFocused ? wp(5) : 0,
+                borderRadius: isFocused ? wp(10) : 0,
                 paddingVertical: hp(0.5),
               },
             ]}
@@ -209,7 +208,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: COLORS.primary,
     paddingHorizontal: wp(2),
-    borderRadius: wp(5),
+    borderRadius: wp(10),
     marginHorizontal: wp(2),
     marginBottom: hp(1),
   },
@@ -231,14 +230,5 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_500Medium",
   },
 
-  indicator: {
-    position: "absolute",
-    bottom: 0,
-    left: wp(3.6),
-    height: hp(0.6),
-    backgroundColor: "#FFF",
-    borderTopLeftRadius: wp(1),
-    borderTopRightRadius: wp(1),
-    zIndex: 1,
-  },
+  
 });

@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -216,16 +217,19 @@ export default function AssignedTasklistScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <View style={styles.container}>
         <CommonHeader title={t('assigned_task')} showBackButton={route?.params ? true : false} onBackPress={() => navigation?.goBack()} />
-        <SearchContainer
-          value={searchText}
-          onChangeText={setSearchText}
-          placeholder={`${t("search_task")}...`}
-          selectedStatus={selectedStatus}
-          onStatusSelect={handleStatusSelect}
-          modalVisible={modalVisible}
-          selectedStatuss={selectedStatus}
-          clearSearch={() => setSearchText("")}
-        />
+        {
+          tasks?.length > 0 &&
+          <SearchContainer
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholder={`${t("search_task")}...`}
+            selectedStatus={selectedStatus}
+            onStatusSelect={handleStatusSelect}
+            modalVisible={modalVisible}
+            selectedStatuss={selectedStatus}
+            clearSearch={() => setSearchText("")}
+          />
+        }
         {loading && page === 1 ? (
           // Initial load skeleton
           <FlatList
@@ -235,10 +239,10 @@ export default function AssignedTasklistScreen() {
             contentContainerStyle={{ paddingVertical: hp(2) }}
           />
         ) : (
-          // Actual task list
           <FlatList
             ref={flatListRef}
             ListHeaderComponent={
+              tasks?.length > 0 &&
               (
                 <>
                   <DateandDownloadTask
@@ -291,6 +295,15 @@ export default function AssignedTasklistScreen() {
             ListEmptyComponent={
               !loading && tasks.length === 0 && (
                 <View style={{ alignItems: "center", marginTop: hp(5) }}>
+                  <Ionicons
+                    name="close"
+                    size={wp(20)}
+                    color="#CCC"
+                    style={{
+                      alignSelf: "center",
+                      marginTop: hp(5),
+                    }}
+                  />
                   <Text style={{ color: COLORS.gray, fontFamily: "Poppins_600SemiBold" }}>
                     {t('no_tasks_found')}
                   </Text>
