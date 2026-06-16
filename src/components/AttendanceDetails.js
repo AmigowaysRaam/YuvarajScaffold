@@ -9,7 +9,7 @@ import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
 
 const AttendanceDetails = ({ homepageData }) => {
-  
+
   const { t } = useTranslation();
   const navigation = useNavigation();
 
@@ -87,7 +87,7 @@ const AttendanceDetails = ({ homepageData }) => {
       ],
     },
   };
-  
+
   const attendance = data.attendance;
   const attendanceSection = attendance;
   const todayData = {};
@@ -227,7 +227,6 @@ const AttendanceDetails = ({ homepageData }) => {
           <Text style={[styles.taskLabel, { fontSize: wp(3.8) }]}>
             Break Details
           </Text>
-
           {attendance.break_details.map((item) => (
             <View
               key={item.key}
@@ -246,6 +245,22 @@ const AttendanceDetails = ({ homepageData }) => {
               </View>
             </View>
           ))}
+          <Pressable
+            onPress={() => {
+              navigation?.navigate('LeaveManagement')
+            }}
+            style={{
+              width: wp(90), height: hp(5), alignSelf: "center", marginTop: hp(2), backgroundColor: COLORS?.primary,
+              alignItems: "center", justifyContent: "center",
+              borderRadius: wp(5)
+            }}>
+            <Text style={{
+              fontFamily: 'Poppins_500SemiBold',
+              fontSize: wp(4), color: COLORS?.white, lineHeight: hp(5)
+            }}>
+              Apply Leave
+            </Text>
+          </Pressable>
         </View>
       </Pressable>
     </View>

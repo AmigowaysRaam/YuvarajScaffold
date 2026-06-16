@@ -1,18 +1,11 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React, { useEffect, useRef } from "react";
 import {
-  Animated,
-  Image,
-  ImageBackground,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
+  Animated, Image, ImageBackground, StyleSheet, Text, TouchableOpacity,
 } from "react-native";
 import { useSelector } from "react-redux";
-
 import { COLORS } from "../../../app/resources/colors";
 import { hp, wp } from "../../../app/resources/dimensions";
-
 import AssignTaskListScreen from "../AssignTaskListScreen";
 import AttendanceActivity from "../AttendanceActivity";
 import AttendanceLoginScreen from "../AtttendanceLogin";
@@ -25,28 +18,22 @@ const Tab = createBottomTabNavigator();
 const MENU_RESPONSE = {
   menus: [
     {
-      key: "home",
-      label: "Home",
+      key: "home", label: "Home",
     },
     {
-      key: "mytask",
-      label: "My Task",
+      key: "mytask", label: "My Task",
     },
     {
-      key: "assignedTask",
-      label: "Assign Task",
+      key: "assignedTask", label: "Assign Task",
     },
     {
-      key: "myAccount",
-      label: "My Account",
+      key: "myAccount", label: "My Account",
     },
     {
-      key: "activity",
-      label: "Activity",
+      key: "activity", label: "Activity",
     },
     {
-      key: "faceLogin",
-      label: "Face Login",
+      key: "faceLogin", label: "Face Login",
     },
   ],
 };
@@ -154,13 +141,10 @@ function CustomTabBar({ state, navigation, menus }) {
     </ImageBackground>
   );
 }
-
 export default function BottomTab() {
   const profileDetails = useSelector(
     (state) => state?.auth?.profileDetails?.data
   );
-
-
   const attendanceAccess =
     profileDetails?.attendanceAccess;
 
@@ -200,7 +184,6 @@ export default function BottomTab() {
     </Tab.Navigator>
   );
 }
-
 const styles = StyleSheet.create({
   tabBar: {
     flexDirection: "row",
@@ -212,23 +195,18 @@ const styles = StyleSheet.create({
     marginHorizontal: wp(2),
     marginBottom: hp(1),
   },
-
   tabItem: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     zIndex: 2,
   },
-
   icon: {
     width: wp(7),
     height: wp(7),
   },
-
   label: {
     fontSize: wp(2.4),
     fontFamily: "Poppins_500Medium",
   },
-
-  
 });

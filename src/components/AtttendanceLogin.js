@@ -1,91 +1,140 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import { Audio } from "expo-av";
-import { CameraView, useCameraPermissions } from "expo-camera";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator, Image, Modal, StyleSheet, Text, TouchableOpacity, View
+    ActivityIndicator, Image, Modal, StyleSheet, Text,
+    TouchableOpacity,
+    View
 } from "react-native";
+import { Camera, CameraType } from "react-native-camera-kit";
 import { COLORS } from "../../app/resources/colors";
-import { hp, wp } from "../../app/resources/dimensions";
+import { wp } from "../../app/resources/dimensions";
 import { useToast } from "../../constants/ToastContext";
 import AttHeader from "./AttendacneLogin";
 import LocationPermissionModal from "./LocationPermissionModal";
 
-export default function AttendanceLoginScreen() {
-    const [permission, requestPermission] = useCameraPermissions();
-    const [loading, setLoading] = useState(false);
-    const navigation = useNavigation();
+export default function AttendanceLogin() {
+    const cameraRef = useRef(null);
+    const attendanceLock = useRef(false);
+    const [faces, setFaces] = useState([]);
+    const [faceDetected, setFaceDetected] = useState(false);
+    const [attendanceMarked, setAttendanceMarked] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [location, setLocation] = useState(null);
+    const [countdown, setCountdown] = useState(null);
     const [attendanceData, setAttendanceData] = useState(null);
     const [showSuccessCard, setShowSuccessCard] = useState(false);
+    const countdownRef = useRef(null);
     const { showToast } = useToast();
-    const cameraRef = useRef(null);
-    const [location, setLocation] = useState(null);
-    useEffect(() => {
-        if (!permission) return;
-
-        if (!permission.granted) {
-            requestPermission();
-        }
-    }, [permission]);
-
     const playAudio = async (type = "success") => {
         try {
-            const { sound } = await Audio.Sound.createAsync(
+            const source =
                 type === "success"
                     ? require("../../assets/loginSuccess.mp3")
-                    : require("../../assets/loginFailed.mp3")
-            );
+                    : require("../../assets/loginFailed.mp3");
+            const { sound } = await Audio.Sound.createAsync(source);
+            console.log("Audio loaded");
             await sound.playAsync();
-
-            sound.setOnPlaybackStatusUpdate((status) => {
-                if (status.didJustFinish) {
-                    sound.unloadAsync();
-                }
-            });
+            console.log("Audio playing");
         } catch (error) {
             console.log("Audio Error:", error);
         }
     };
+    const startAttendanceProcess = useCallback(() => {
+        if (
+            attendanceLock.current ||
+            attendanceMarked ||
+            uploading ||
+            countdownRef.current
+        ) {
+            return;
+        }
+        let count = 3;
+        setCountdown(count);
+        countdownRef.current = setInterval(() => {
+            count--;
+            if (count > 0) {
+                setCountdown(count);
+            } else {
+                clearInterval(countdownRef.current);
+                countdownRef.current = null;
+                setCountdown(null);
+                captureAndUpload();
+            }
+        }, 1000);
+    }, [attendanceMarked, uploading]);
+    useEffect(() => {
+        const setupAudio = async () => {
+            await Audio.setAudioModeAsync({
+                playsInSilentModeIOS: true,
+                staysActiveInBackground: false,
+                shouldDuckAndroid: true,
+            });
+        };
+
+        setupAudio();
+    }, []);
 
     const captureAndUpload = async () => {
+        if (
+            attendanceLock.current ||
+            attendanceMarked ||
+            uploading
+        ) {
+            return;
+        }
+
+        if (!cameraRef.current) {
+            return;
+        }
         try {
-            if (!cameraRef.current) return;
-            if (!location) {
-                showToast("Waiting for location...", "error");
-                return;
-            }
-
-            setLoading(true);
-
-            const photo = await cameraRef.current.takePictureAsync({
-                quality: 1,
+            attendanceLock.current = true;
+            setUploading(true);
+            const image = await cameraRef.current.capture({
+                quality: 0.1, // 0.0 - 1.0
             });
-            // console.log("Photo URI:", photo.uri);
+            console.log('Original:', image.size);
+            console.log("Captured Image:", image);
             const formData = new FormData();
             formData.append("faceImage", {
-                uri: photo.uri,
+                uri: image.uri,
                 name: "attendance.jpg",
                 type: "image/jpeg",
             });
-            formData.append("latitude", location.latitude);
-            formData.append("longitude", location.longitude);
-            console.log("Form Data :", formData);
+            console.log("Captured Image:", image);
+            console.log("Image Size (bytes):", image.size);
+            console.log("Image Size (KB):", (image.size / 1024).toFixed(2));
+            console.log("Image Size (MB):", (image.size / (1024 * 1024)).toFixed(2));
+            if (location) {
+                formData.append(
+                    "latitude",
+                    String(location.latitude)
+                );
+                formData.append(
+                    "longitude",
+                    String(location.longitude)
+                );
+            }
             const response = await fetch(
                 "https://hrms.yuvarajscaffoldingtraders.com/api/?url=face-attendance-mark",
                 {
                     method: "POST",
+                    body: formData,
                     headers: {
-                        // Authorization: "YOUR_TOKEN_HERE",
                         Accept: "application/json",
                     },
-                    body: formData,
                 }
             );
             const result = await response.json();
+            console.log("Attendance Response:", result);
             if (result?.success) {
                 await playAudio("success");
                 console.log("Attendance Result:", result);
+                setAttendanceMarked(true);
+                showToast?.(
+                    result?.message ||
+                    "Attendance marked successfully", 'success'
+                );
                 setAttendanceData({
                     name: result.employee?.name,
                     employeeId: result.employee?.employeeId,
@@ -103,110 +152,141 @@ export default function AttendanceLoginScreen() {
                     setAttendanceData(null);
                 }, 2500);
 
-                showToast(result.message, "success");
             } else {
+                // 
+                // setAttendanceData({
+                //     name: 'result.employee?.name',
+                //     employeeId: 'result.employee?.employeeId',
+                //     photo: 'result.employee?.employeeImage',
+                //     message: 'result.message',
+                //     loginTime: 'result?.loginDate',
+                //     action: 'result.action',
+                //     confidence: 'result.confidence',
+                // });
+
+                // setShowSuccessCard(true);
+
+                // setTimeout(() => {
+                //     setShowSuccessCard(false);
+                //     setAttendanceData(null);
+                // }, 2500);
+                // 
                 await playAudio("failed");
-                showToast(result?.message || "Attendance Failed", "error");
+                attendanceLock.current = false;
+                showToast?.(
+                    result?.message ||
+                    "Failed to mark attendance",
+                    'error'
+                );
+
             }
         } catch (error) {
-            console.error("Upload Error:", error);
             await playAudio("failed");
-            showToast("Error Capturing Attendance", "error");
+            console.log("Attendance Error:", error);
+            attendanceLock.current = false;
+            showToast?.(
+                "Something went wrong while marking attendance", 'error'
+            );
         } finally {
-            setLoading(false);
+            setUploading(false);
         }
     };
 
-    if (!permission) {
-        return <View />;
-    }
 
-    if (!permission.granted) {
-        return (
-            <View style={styles.center}>
-                <Ionicons
-                    name="camera-outline"
-                    size={60}
-                    color="#2563EB"
-                />
-                <Text style={styles.permissionText}>
-                    Camera Permission Required
-                </Text>
-            </View>
-        );
-    }
+    const onFaceDetected = useCallback(
+        (event) => {
+            const detectedFaces = event?.nativeEvent?.faces || [];
+            setFaces(detectedFaces);
+            const hasFace = detectedFaces.length > 0;
+            setFaceDetected(hasFace);
+            if (
+                hasFace &&
+                !attendanceMarked &&
+                !attendanceLock.current &&
+                !uploading &&
+                !countdownRef.current
+            ) {
+                startAttendanceProcess();
+            }
+            if (!hasFace && countdownRef.current) {
+                clearInterval(countdownRef.current);
+                countdownRef.current = null;
+                setCountdown(null);
+            }
+        },
+        [attendanceMarked, uploading, startAttendanceProcess]
+    );
+
     return (
         <View style={styles.container}>
             <AttHeader
                 title="Attendance Login"
                 showBackButton={false}
-            // onBackPress={() => navigation.goBack()}
             />
-            <View style={styles.contentContainer}>
-                {/* Camera Card */}
-                <View style={styles.cameraCard}>
-                    <CameraView
-                        ref={cameraRef}
-                        style={styles.camera}
-                        facing="front"
-                    />
-                </View>
-
-                {/* View Attendance Log Button */}
-                {/* <TouchableOpacity
-                    style={styles.logButton}
-                    onPress={() =>
-                        navigation.navigate("AttendanceActivity")
-                    }
-                >
-                    <Ionicons
-                        name="eye-outline"
-                        size={20}
-                        color="#2563EB"
-                    />
-                    <Text style={styles.logButtonText}>
-                        View Attendance Log
-                    </Text>
-                </TouchableOpacity> */}
-
-                {/* Mark Attendance Button */}
-                <TouchableOpacity
-                    style={[
-                        styles.captureButton,
-                        loading && { opacity: 0.7 },
-                    ]}
-                    onPress={captureAndUpload}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <>
-                            <ActivityIndicator color="#fff" />
-                            <Text style={styles.captureButtonText}>
-                                Uploading...
-                            </Text>
-                        </>
-                    ) : (
-                        <>
-                            <Ionicons
-                                name="camera"
-                                size={22}
-                                color="#fff"
-                            />
-                            <Text style={styles.captureButtonText}>
-                                Mark Attendance
-                            </Text>
-                        </>
-                    )}
-                </TouchableOpacity>
-            </View>
-
-            <LocationPermissionModal
-                onLocationReceived={(coords) => {
-                    setLocation(coords);
+            <Camera
+                ref={cameraRef}
+                cameraType={CameraType.Front}
+                style={styles.camera}
+                faceDetectionEnabled={true}
+                faceDetectionThrottleMs={500}
+                onFaceDetected={onFaceDetected}
+                onFaceDetectionInstallStatus={(event) => {
+                    console.log(
+                        "Face Detection Status:",
+                        event?.nativeEvent?.state
+                    );
                 }}
             />
 
-            {/* Success Modal */}
+            <View style={styles.statusContainer}>
+                {countdown !== null ? (
+                    <>
+                        <Text
+                            style={{
+                                fontSize: wp(20),
+                                fontWeight: "bold",
+                                color: COLORS?.primary
+                            }}
+                        >
+                            {countdown}
+                        </Text>
+                        <Text style={styles.processingText}>
+                            Capturing attendance in...
+                        </Text>
+                    </>
+                ) : uploading ? (
+                    <>
+                        <ActivityIndicator size="small" />
+                        <Text style={styles.processingText}>
+                            Verifying Face...
+                        </Text>
+                    </>
+                ) : attendanceMarked ? (
+                    <Text
+                        style={[
+                            styles.statusText,
+                            { color: "green" },
+                        ]}
+                    >
+                        Attendance Marked Successfully
+                    </Text>
+                ) : (
+                    <Text
+                        style={[
+                            styles.statusText,
+                            {
+                                color: faceDetected
+                                    ? "green"
+                                    : "red",
+                            },
+                        ]}
+                    >
+                        {faceDetected
+                            ? `Face Detected (${faces.length})`
+                            : "No Face Detected"}
+                    </Text>
+                )}
+            </View>
             <Modal
                 visible={showSuccessCard}
                 transparent
@@ -214,7 +294,6 @@ export default function AttendanceLoginScreen() {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.successCard}>
-
                         <Ionicons
                             name="checkmark-circle"
                             size={80}
@@ -257,37 +336,21 @@ export default function AttendanceLoginScreen() {
                 </View>
             </Modal>
 
-            {/* Loader */}
-            <Modal
-                visible={loading}
-                transparent
-                animationType="fade"
-            >
-                <View style={styles.loaderContainer}>
-                    <View style={styles.loaderCard}>
-                        <ActivityIndicator
-                            size="large"
-                            color="#2563EB"
-                        />
 
-                        <Text style={styles.loaderTitle}>
-                            Processing Attendance
-                        </Text>
-
-                        <Text style={styles.loaderSubtitle}>
-                            Capturing image and verifying face...
-                        </Text>
-                    </View>
-                </View>
-            </Modal>
+            <LocationPermissionModal
+                onLocationReceived={(coords) => {
+                    console.log("Location:", coords);
+                    setLocation(coords);
+                }}
+            />
         </View>
     );
 }
 const styles = StyleSheet.create({
     container: {
-        flex: 1, backgroundColor: "#000",
+        flex: 1,
     },
-    camera: { flex: 1, }, modalOverlay: {
+    modalOverlay: {
         flex: 1, backgroundColor: "rgba(0,0,0,0.65)", justifyContent: "center", alignItems: "center",
     }, successCard: {
         width: "88%", backgroundColor: "#fff", borderRadius: 24, padding: 24, alignItems: "center", elevation: 12,
@@ -308,89 +371,14 @@ const styles = StyleSheet.create({
     }, timeText: { marginTop: 4, fontSize: 22, fontWeight: "700", color: "#111827", }, okButton: {
         marginTop: 24, backgroundColor: "#2563EB", width: "100%", paddingVertical: 14,
         borderRadius: 14, alignItems: "center",
-    }, okButtonText: { color: "#fff", fontSize: 16, fontWeight: "700", }, logButton: {
-        position: "absolute", top: 60, right: 20, flexDirection: "row",
-        alignItems: "center", backgroundColor: "#fff", paddingHorizontal: 14, paddingVertical: 10,
-        borderRadius: 14, shadowColor: "#000", shadowOffset: { width: 0, height: 4, },
-        shadowOpacity: 0.15, shadowRadius: 6, elevation: 6,
-    }, logButtonText: { color: "#2563EB", fontWeight: "700", marginLeft: 6, fontSize: 13, }, captureButton: {
-        position: "absolute", bottom: 40, alignSelf: "center", backgroundColor: "#2563EB", flexDirection: "row", alignItems: "center",
-        justifyContent: "center", paddingHorizontal: 28, paddingVertical: 16,
-        borderRadius: 18, minWidth: wp(65), shadowColor: "#2563EB", shadowOffset: { width: 0, height: 6, },
-        shadowOpacity: 0.35, shadowRadius: 8, elevation: 10,
-    }, captureButtonText: {
-        color: "#fff", fontSize: wp(4.6),
-        fontFamily: "Poppins_600SemiBold",
-        marginLeft: hp(2), lineHeight: hp(2),
-
-    }, center: {
-        flex: 1, justifyContent: "center", alignItems: "center",
-    }, loaderContainer: {
-        flex: 1, backgroundColor: "rgba(0,0,0,0.65)", justifyContent: "center", alignItems: "center",
-    }, loaderCard: {
-        width: "85%", backgroundColor: "#fff",
-        paddingVertical: 35, paddingHorizontal: 25, borderRadius: 24,
-        alignItems: "center", shadowColor: "#000", shadowOffset: {
-            width: 0, height: 8,
-        }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 8,
-    }, loaderTitle: {
-        marginTop: 20, fontSize: 20, fontWeight: "700", color: "#111827",
-    }, loaderSubtitle: {
-        marginTop: 10, textAlign: "center", fontSize: 15, color: "#6B7280", lineHeight: 22,
-    },
-    permissionText: { marginTop: 10, fontSize: 16, fontWeight: "600", },
-    container: {
-        flex: 1,
-        backgroundColor: "#F3F4F6",
-    },
-    contentContainer: {
-        flex: 1,
-        padding: wp(2),
-        justifyContent: "center",
-    },
-    cameraCard: {
-        height: hp(62),
-        backgroundColor: "#fff",
-        borderRadius: wp(5),
-        overflow: "hidden",
-    },
-    camera: {
-        flex: 1,
-    },
-    logButton: {
-        marginTop: wp(5),
-        backgroundColor: "#fff",
-        borderRadius: wp(4),
-        paddingVertical: wp(5),
-        justifyContent: "center",
+    }, okButtonText: { color: "#fff", fontSize: 16, fontWeight: "700", },
+    camera: { flex: 1, }, statusContainer: {
+        position: "absolute", top: 80, alignSelf: "center", backgroundColor: "#FFF",
+        paddingHorizontal: 16, paddingVertical: 12, borderRadiu: 12, elevation: 4,
         alignItems: "center",
-        flexDirection: "row",
+    }, statusText: {
+        fontSize: 16, fontWeight: "600",
+    }, processingText: {
+        marginTop: 8, fontSize: 14, fontWeight: "500",
     },
-
-    logButtonText: {
-        marginLeft: 8,
-        fontSize: 15,
-        fontWeight: "700",
-        color: "#2563EB",
-    },
-    captureButton: {
-        marginTop: wp(4),
-        backgroundColor: COLORS.primary,
-        borderRadius: wp(4),
-        paddingVertical: wp(7),
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-
-        shadowColor: "#2563EB",
-        shadowOffset: {
-            width: 0,
-            height: 6,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-
-        elevation: 8,
-    },
-
 });

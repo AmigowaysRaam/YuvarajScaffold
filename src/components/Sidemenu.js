@@ -116,12 +116,30 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
 
     };
     const confirmLogout = async () => {
-        setLogoutModalVisible(false);
-        await AsyncStorage.clear();
-        navigation.reset({
-            index: 0,
-            routes: [{ name: "MobileLogin" }],
-        });
+        const pseudoId = `${Device.brand}${Device.modelName}${userId}`;
+        try {
+            const response = await fetchData(
+                "app-employee-logout",
+                "POST",
+                {
+                    user_id: profileDetails.id,
+                    deviceInfo: pseudoId
+                }
+            );
+            console.log(response,"response")
+            if (response?.success) {
+                await AsyncStorage.clear();
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: "MobileLogin" }],
+                });
+            }
+        } catch (error) {
+            console.error("Notification API Error:", error);
+        } finally {
+            setLogoutModalVisible(false);
+        }
+
     };
     const cancelLogout = () => {
         setLogoutModalVisible(false);

@@ -8,6 +8,8 @@ import ChangeMpin from '../ChangeMpin';
 import CreateMpin from '../CreateMpin';
 import CreateTask from '../CreateTask';
 import forgetotpVerfication from '../forgetotpVerfication';
+import LeadListScreen from '../LeadListScreen';
+import LeaveManagement from '../LeaveManagement';
 import Login from '../Login';
 import MaintainancePage from '../MaintainancePage';
 import MobileLogin from '../MobileLogin';
@@ -63,8 +65,11 @@ export default function StackNavi() {
       <Stack.Screen name='TaskDetails' component={TaskDetails} />
       <Stack.Screen name='AttendanceLoginScreen' component={AttendanceLoginScreen} />
       <Stack.Screen name='AttendanceActivity' component={AttendanceActivity} />
-
-      
+      <Stack.Screen name='LeaveManagement' component={LeaveManagement} />
+      <Stack.Screen
+        name="LeadListScreen"
+        component={LeadListScreen}
+      />
     </Stack.Navigator>
   );
 }

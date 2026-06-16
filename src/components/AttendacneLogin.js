@@ -2,33 +2,27 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  Image,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
+  Animated, Image, Modal, Pressable, StyleSheet, Text,
   View,
 } from "react-native";
 
+import { useSelector } from "react-redux";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
 import VersionUpgradeModal from "./VersionUpgradeModal";
 
 export default function AttHeader({
-  openMenu,
-  headerL,
-  openLanguageMenu,
   notificationCount = "0",
 }) {
   const navigation = useNavigation();
   const scaleAnim = useRef(new Animated.Value(1)).current;
-
   const [logoutVisible, setLogoutVisible] = useState(false);
-
   const notifCountNum = Number(notificationCount) || 0;
-
+  const profileDetails = useSelector(
+    (state) => state?.auth?.profileDetails?.data
+  );
   useEffect(() => {
+    // console.log(profileDetails?.full_name,"profileDetails")
     if (notifCountNum > 0) {
       Animated.sequence([
         Animated.timing(scaleAnim, {
@@ -48,9 +42,7 @@ export default function AttHeader({
   const handleLogout = async () => {
     try {
       setLogoutVisible(false);
-
       await AsyncStorage.clear();
-
       navigation.reset({
         index: 0,
         routes: [{ name: "MobileLogin" }],
@@ -76,7 +68,23 @@ export default function AttHeader({
             style={styles.iconContainer}
             onPress={() => setLogoutVisible(true)}
           >
-            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+            <Animated.View style={{
+              transform: [{ scale: scaleAnim }],
+              flexDirection: "row", justifyContent: "center",
+              backgroundColor: COLORS?.primary + "22",
+              padding: wp(1),
+              borderRadius: wp(2),
+              maxWidth: wp(40),
+              height: wp(10), alignItems: "center"
+            }}>
+              <Text
+                numberOfLines={1}
+                style={{
+                  fontFamily: "Poppins_500Medium",
+                  maxWidth: wp(32), fontSize: wp(3),
+                  marginHorizontal: wp(2)
+                }}
+              >{profileDetails?.full_name}</Text>
               <Image
                 source={require("../../assets/logouticon.png")}
                 style={styles.icon}
@@ -132,109 +140,51 @@ export default function AttHeader({
     </>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    paddingHorizontal: wp(2),
-    height: wp(20),
-    justifyContent: "space-between",
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: "#fff", paddingHorizontal: wp(2),
+    height: wp(20), justifyContent: "space-between",
   },
-
-  logoContainer: {
-    flex: 1,
+  logoContainer: { flex: 1, }, rightContainer: {
+    flexDirection: "row", alignItems: "center",
   },
-
-  rightContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  iconContainer: {
-    padding: wp(1),
-    marginHorizontal: wp(0.8),
-  },
-
+  iconContainer: { padding: wp(1), marginHorizontal: wp(0.8), },
   icon: {
-    width: wp(10),
-    height: wp(10),
-    resizeMode: "contain",
-    borderRadius: wp(1),
-    backgroundColor: "#f0f0f0",
-    padding: wp(1),
+    width: wp(5), height: wp(6),
+    resizeMode: "contain", borderRadius: wp(1), backgroundColor: "#f0f0f0", padding: wp(1),
   },
-
   logo: {
-    width: wp(60),
-    height: hp(28),
-    resizeMode: "cover",
-    marginTop: hp(1),
+    width: wp(48), height: hp(20), resizeMode: "cover", marginTop: hp(1),
   },
-
   badge: {
     position: "absolute",
-    top: wp(-1.5),
-    right: wp(-0.8),
-    minWidth: wp(4.7),
-    height: wp(4.7),
-    borderRadius: wp(2.35),
+    top: wp(-1.5), right: wp(-0.8), minWidth: wp(4.7), height: wp(4.7), borderRadius: wp(2.35),
     backgroundColor: COLORS.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: wp(1),
-    borderColor: "#fff",
+    justifyContent: "center", alignItems: "center", paddingHorizontal: wp(1), borderColor: "#fff",
     borderWidth: wp(0.4),
-  },
-
-  badgeText: {
-    color: "#fff",
-    fontSize: wp(2.5),
+  }, badgeText: {
+    color: "#fff", fontSize: wp(2.5),
     fontFamily: "Poppins_600SemiBold",
   },
-
   modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    justifyContent: "center",
+    flex: 1, backgroundColor: "rgba(0,0,0,0.35)", justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: wp(6),
-  },
-
-  modalContainer: {
+  }, modalContainer: {
     width: "85%",
-    backgroundColor: "#fff",
-    borderRadius: wp(4),
-    padding: wp(5),
-    elevation: 5,
+    backgroundColor: "#fff", borderRadius: wp(4), padding: wp(5), elevation: 5,
   },
-
   modalTitle: {
-    fontSize: wp(5),
-    fontWeight: "600",
-    color: "#222",
-    textAlign: "center",
+    fontSize: wp(5), fontWeight: "600", color: "#222", textAlign: "center",
     marginBottom: hp(1),
   },
-
   modalMessage: {
-    fontSize: wp(3.8),
-    color: "#555",
-    textAlign: "center",
-    marginBottom: hp(2.5),
+    fontSize: wp(3.8), color: "#555", textAlign: "center", marginBottom: hp(2.5),
   },
-
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
+  buttonRow: { flexDirection: "row", justifyContent: "space-between", },
   modalButton: {
-    flex: 1,
-    paddingVertical: hp(1.3),
-    borderRadius: wp(2),
-    alignItems: "center",
+    flex: 1, paddingVertical: hp(1.3), borderRadius: wp(2), alignItems: "center",
   },
 
   cancelButton: {

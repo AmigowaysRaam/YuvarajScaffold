@@ -68,7 +68,7 @@ export const PunchCard = React.memo(({ onLoading }) => {
 
       }
     } catch (error) {
-      console.error("error API Error:", error);
+      console.error("mobile-punch-status Error:", error);
     } finally {
 
     }

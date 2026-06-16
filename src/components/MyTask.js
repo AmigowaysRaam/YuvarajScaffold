@@ -107,7 +107,9 @@ const MyTask = ({ homepageData }) => {
 
     return (
       <Pressable
-        style={{ opacity: numericValue > 0 ? 1 : 0.9 }}
+        style={{ opacity: numericValue > 0 ? 1 : 0.9 ,
+          alignSelf:"center"
+        }}
         key={`${keyPrefix}-${key}`}
         onPress={() => {
           if (numericValue > 0) {
@@ -164,7 +166,10 @@ const MyTask = ({ homepageData }) => {
   };
   return (
     <View style={{
-      backgroundColor: COLORS?.primary+'10', width: wp(100), alignItems: "center", paddingVertical: hp(2), marginTop: hp(1)
+      backgroundColor: COLORS?.primary+'10', 
+      width: wp(100),alignSelf:"center", 
+      alignItems: "center", paddingVertical: hp(2), marginTop: hp(1),
+      
     }}>
       <View style={styles.wrapper}>
         <Pressable onPress={() => navigation.navigate("MyTaskListScreen", { status: null, })} style={styles.headerRow}>
@@ -198,8 +203,6 @@ const MyTask = ({ homepageData }) => {
             </Text>
           </View>
         </Pressable>
-
-        {/* Today Task Cards */}
         <View
           style={{
             width: wp(93),
@@ -242,6 +245,7 @@ export default MyTask;
 const styles = StyleSheet.create({
   wrapper: {
     marginHorizontal: wp(2),
+    alignSelf:"center"
   },
   headerRow: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
@@ -270,6 +274,7 @@ const styles = StyleSheet.create({
     width: wp(46), height: hp(6.5), borderRadius: wp(1.5), alignItems: "center",
     flexDirection: "row", paddingHorizontal: wp(1),
     marginBottom: hp(1),
+    alignSelf:"center"
   },
   icon: {
     width: wp(12), height: wp(12),

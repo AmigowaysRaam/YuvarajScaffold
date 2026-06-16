@@ -20,14 +20,10 @@ export default function AttendanceLog({ route }) {
 
   const navigation = useNavigation();
   const [summaryData, setSummaryData] = useState({
-    total_days: 0,
-    present_days: 0,
-    absent_days: 0,
-    late_days: 0,
+    total_days: 0, present_days: 0, absent_days: 0, late_days: 0,
     working_hours: "00:00",
   });
   const [attendanceDetails, setAttendanceDetails] = useState({});
-  
   const [refreshing, setRefreshing] = useState(false);
   const [loginData, setLoginData] = useState([]);
   const [scrollY, setScrollY] = useState(0);
@@ -35,7 +31,7 @@ export default function AttendanceLog({ route }) {
   const [yearDropdownVisible, setYearDropdownVisible] = useState(false);
   const [monthDropdownVisible, setMonthDropdownVisible] = useState(false);
   const [selectedYear, setSelectedYear] = useState(dayjs().year());
-  const [selectedMonth, setSelectedMonth] = useState(dayjs().month() + 1); // 1-12
+  const [selectedMonth, setSelectedMonth] = useState(null); // 1-12
 
   const flatListRef = useRef();
   const profileDetails = useSelector(
@@ -49,12 +45,12 @@ export default function AttendanceLog({ route }) {
   const loadAttendance = async () => {
     try {
       setRefreshing(true);
-  
+
       const response = await fetchData(
         "employee-attendance-log",
         "POST",
         {
-          employee_id:"6a2918dc2de30e591d60b805",
+          employee_id: "6a2918dc2de30e591d60b805",
           month: selectedMonth,
           year: selectedYear,
         }
@@ -180,7 +176,7 @@ export default function AttendanceLog({ route }) {
                     borderWidth: wp(0.4), borderColor:
                       COLORS?.primary
                   }]}
-                  // onPress={() => setYearDropdownVisible(!yearDropdownVisible)}
+                  onPress={() => setYearDropdownVisible(!yearDropdownVisible)}
                 >
                   <Text style={styles.dateToggleText}>{selectedYear}</Text>
                   <Icon type="feather"
@@ -198,55 +194,35 @@ export default function AttendanceLog({ route }) {
                   onSelect={(item) => {
                     setSelectedYear(item.value);
                     setYearDropdownVisible(false);
+                    const currentMonth = dayjs().month() + 1;
+                    setSelectedMonth(currentMonth);
                   }}
                 />
               </View>
-
               <View style={{ flex: 1, marginLeft: wp(1) }}>
                 <Pressable
                   style={[styles.dateToggle, {
-                    backgroundColor: COLORS?.white,
                     borderWidth: wp(0.4), borderColor:
                       COLORS?.primary
                   }]}
                   onPress={() => setMonthDropdownVisible(!monthDropdownVisible)}
                 >
-                  <Text style={[styles.dateToggleText, {
-                    color: COLORS?.primary
-                  }]}>
-                    {'Download'}
+                  <Text style={styles.dateToggleText}>
+                    {monthOptions.find(m => m.value === selectedMonth)?.label || "Month"}
                   </Text>
-                  <Icon
-                    name={'download'}
-                    size={wp(5)}
-                    color={COLORS?.primary}
+                  <Icon type="feather" name={monthDropdownVisible ? "arrow-drop-up" : "calendar"}
+                    size={wp(5)} color="#fff"
                   />
                 </Pressable>
               </View>
             </View>
-            <AttendanceDetailsLog homepageData={summaryData} 
+            <AttendanceDetailsLog homepageData={summaryData}
               attendanceDetails={attendanceDetails}
-              />
+            />
             <View style={{ marginLeft: wp(4) }}>
-              <Pressable
-                style={[styles.dateToggle, {
-                  width: "45%",
-                }]}
-                onPress={() => setMonthDropdownVisible(!monthDropdownVisible)}
-              >
-                <Text style={styles.dateToggleText}>
-                  {monthOptions.find(m => m.value === selectedMonth)?.label || "Month"}
-                </Text>
-                <Icon
-                  type="feather"
-                  name={monthDropdownVisible ? "arrow-drop-up" : "calendar"}
-                  size={wp(5)}
-                  color="#fff"
-                />
-              </Pressable>
               <CustomDropdownData
                 title={'Choose Month'}
-                isVisible={monthDropdownVisible}       // <- Control visibility
+                isVisible={monthDropdownVisible}
                 onClose={() => setMonthDropdownVisible(false)}
                 data={monthOptions}
                 selectedItem={{ value: selectedMonth }}
@@ -269,17 +245,12 @@ const styles = StyleSheet.create({
   dateToggle: {
     paddingVertical: wp(2),
     marginBottom: wp(2),
-    backgroundColor: COLORS.primary,
-    borderRadius: wp(20),
-    width: "100%",
-    alignItems: "center",
+    backgroundColor: COLORS.primary, borderRadius: wp(2),
+    width: "100%", alignItems: "center",
     flexDirection: "row",
-    justifyContent: "space-around",
-    paddingHorizontal: wp(4),
-  },
-  dateToggleText: {
+    justifyContent: "space-around", paddingHorizontal: wp(4),
+  }, dateToggleText: {
     fontSize: wp(3.8),
-    color: "#fff",
-    fontFamily: "Poppins_600SemiBold", lineHeight: hp(3)
+    color: "#fff", fontFamily: "Poppins_600SemiBold", lineHeight: hp(3)
   },
 });

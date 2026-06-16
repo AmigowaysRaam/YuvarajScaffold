@@ -46,7 +46,7 @@
       "favicon": "./assets/images/yuvIcon.png"
     },
     "plugins": [
-      "expo-router",
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -61,7 +61,7 @@
     "splash": {
       "image": "./assets/images/yuvarajscaffolding-appicon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#fff"
     }
 
   }

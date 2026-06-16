@@ -63,19 +63,14 @@ export default function AssignedTasklistScreen() {
   ) => {
     if (!hasMore && !isRefresh) return;
     if (!profileDetails?.id) return;
-
     const lang = await getStoredLanguage();
     setLoading(pageNo === 1);
-
     try {
-      // ✅ Validate status safely
       const statusObj = siteDetails?.ticketstatusList?.find(
         (item) =>
           item.label.toLowerCase() === (statusParam || "").toLowerCase()
       );
-
       const statusValue = statusObj?.value;
-
       const response = await fetchData(
         "app-employee-list-my-assigned-tasks",
         "POST",
@@ -253,7 +248,7 @@ export default function AssignedTasklistScreen() {
                     onDateSelect={(range) => {
                       setSelectedDateRange(range);
                       setHasMore(true);
-                      fetchTasks(1, true, selectedStatus, range); // pass range explicitly
+                      fetchTasks(1, true, selectedStatus, range); 
                     }}
                     onDownload={() => showToast('Task list download is in progress...', 'info')}
                   />

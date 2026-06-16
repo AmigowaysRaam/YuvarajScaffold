@@ -179,8 +179,7 @@ const styles = StyleSheet.create({
   container: {
     width: "92%", alignSelf: "center",
     backgroundColor: "#f9f9f9", borderRadius: wp(3), paddingVertical: hp(2), paddingHorizontal: wp(2),
-    elevation: 4,
-    marginBottom: hp(2)
+    elevation: 4, marginBottom: hp(2)
   },
   headerRow: {
     flexDirection: "row", justifyContent: "space-between",
@@ -203,11 +202,9 @@ const styles = StyleSheet.create({
     flexDirection: "row", backgroundColor: COLORS.primary,
     alignItems: "center", marginTop: hp(1.5),
     paddingVertical: hp(1.5), borderRadius: wp(2),
-  },
-  summaryImage: {
+  }, summaryImage: {
     borderRadius: wp(2),
-  },
-  summaryHalf: {
+  }, summaryHalf: {
     flex: 1, alignItems: "center",
   }, summaryText: {
     fontFamily: "Poppins_600SemiBold", fontSize: wp(3.6), color: "#FFF",

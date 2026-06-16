@@ -1,13 +1,8 @@
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Animated,
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
+  Animated, FlatList, RefreshControl, StyleSheet, Text, TextInput,
   View
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -34,12 +29,6 @@ export default function AttendanceActivity() {
   const profileDetails = useSelector(
     (state) => state?.auth?.profileDetails?.data
   );
-
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(40)).current;
-  const scaleAnim = useRef(new Animated.Value(0.9)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-
   useEffect(() => {
     loadEmployees();
   }, []);
@@ -178,7 +167,6 @@ export default function AttendanceActivity() {
             value={summary.totalEmployees}
             color="#2196F3"
           />
-
           <SummaryCard
             title="Online"
             value={summary.loggedEmp}
@@ -186,8 +174,6 @@ export default function AttendanceActivity() {
           />
         </View>
       </View>
-
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"

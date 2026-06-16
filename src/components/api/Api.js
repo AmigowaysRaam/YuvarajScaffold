@@ -28,7 +28,7 @@ export const fetchData = async (endpoint, method = 'POST', body = null, headers 
     // console.log(jsonData,"jsonData")
     return jsonData;
   } catch (error) {
-    console.error('fetchData Error:', error);
+    console.error('fetchData Error:', error,endpoint);
     throw error; // re-throw to handle in caller
   }
 };

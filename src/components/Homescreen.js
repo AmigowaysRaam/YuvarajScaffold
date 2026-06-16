@@ -16,6 +16,7 @@ import Banner from "./Banner";
 import Header from "./Header";
 import InAppNotificationModal from "./InappNotification";
 import LanguageMenu from "./LanguageMenu";
+import LeadsRow from "./LeadsRow";
 import MyTask from "./MyTask";
 import PunchCard from "./PunchCard";
 import SideMenu from "./Sidemenu";
@@ -78,6 +79,7 @@ export default function Homescreen() {
       setRefreshing(false);
     }
   };
+
   useEffect(() => {
     fetchHomepageData();
     // Alert.alert("Welcome!",JSON.stringify(profileDetails));
@@ -110,6 +112,7 @@ export default function Homescreen() {
     setRefreshing(true);
     fetchHomepageData();
   };
+
   return (
     <View style={[styles.container, {
     }]}>
@@ -151,10 +154,12 @@ export default function Homescreen() {
         ) : homepageData ? (
           <>
             <Banner homepageData={homepageData} />
+            <LeadsRow homepageData={homepageData} />
             <PunchCard homepageData={homepageData} onLoading={setpunchLoading} />
             <AttendanceDetails homepageData={homepageData} />
             {/* <HomeMenuRow homepageData={homepageData} /> */}
             <TaskRow homepageData={homepageData} />
+
             <MyTask homepageData={homepageData} />
             <AssignedTask homepageData={homepageData} />
           </>

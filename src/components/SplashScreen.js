@@ -8,7 +8,6 @@ import {
   Alert, Animated, Easing, Platform, StyleSheet,
   View,
 } from "react-native";
-import { ActivityIndicator } from "react-native-paper";
 import {
   canScheduleExactAlarms, canUseFullScreenIntent, openFullScreenIntentSettings,
 } from "react-native-reminder-notifier";
@@ -122,12 +121,10 @@ export default function SplashScreen() {
   const fnGetToken = async () => {
     try {
       await loadStoredLanguage();
-
       const tokenResponse = await fetchData(
         "app-employee-generate-token",
         "POST"
       );
-
       console.log("🔑 Token Response:", tokenResponse);
       if (tokenResponse?.text === "Success") {
         dispatch(setTokens(tokenResponse));
@@ -169,7 +166,6 @@ export default function SplashScreen() {
       navigation.replace("MobileLogin");
     }
   };
-
   const AnimatedDot = ({ delay }) => (
     <Animated.View
       style={[
@@ -179,13 +175,12 @@ export default function SplashScreen() {
             inputRange: [0, 1],
             outputRange: [0.3, 1],
           }),
-          transform: [
-            {
-              scale: pulseAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.8, 1.2],
-              }),
-            },
+          transform: [{
+            scale: pulseAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.8, 1.2],
+            }),
+          },
           ],
           marginLeft: delay ? wp(2) : 0,
         },
@@ -199,7 +194,6 @@ export default function SplashScreen() {
         style={[styles.logo, { transform: [{ scale: scaleAnim }] }]}
         resizeMode="contain"
       />
-      <ActivityIndicator />
       <View style={styles.loader}>
         <AnimatedDot />
         <AnimatedDot delay />
@@ -214,11 +208,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: { height: hp(45), }, loader: {
-    flexDirection: "row", marginTop: 10,
+    flexDirection: "row", marginTop: wp(10),
   },
   dot: {
     width: wp(3), height: wp(3),
     borderRadius: wp(1.5),
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary,
   },
 });

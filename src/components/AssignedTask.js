@@ -157,6 +157,8 @@ const AssignedTask = ({ homepageData }) => {
     <View style={{
       backgroundColor: COLORS?.primary+'10',width: wp(100), alignItems: "center", marginTop: hp(2.5),
       paddingVertical: hp(2),
+      alignSelf: "center",
+
     }}>
       <View style={styles.wrapper}>
         <Pressable onPress={() => navigation.navigate("AssignTaskListScreen", { status: null, })} style={styles.headerRow}>

@@ -27,15 +27,11 @@ export default function MpinLoginScreen() {
   const pinRef = useRef(null);
   // Load userId
   useEffect(() => {
-
-    const pseudoId = `${Device.brand}${Device.modelName}${Device?.totalMemory}`;
-    console.log('DevicepseudoId', pseudoId)
     const timer = setTimeout(() => {
       pinRef.current?.focus();
-    }, 300); // slight delay ensures keyboard opens properly
+    }, 300);
     return () => clearTimeout(timer);
   }, []);
-
   useEffect(() => { loadUserId(); }, []);
   const loadUserId = async () => {
     try {
@@ -50,7 +46,6 @@ export default function MpinLoginScreen() {
       }
     } catch (err) { console.log("Load User ID Error:", err); }
   };
- 
   useEffect(() => {
     const getFcmToken = async () => {
       try {
@@ -68,7 +63,7 @@ export default function MpinLoginScreen() {
     };
     getFcmToken();
   }, []);
-  
+
   const handleLogin = async (mpinValue = null) => {
     const mpinString = mpinValue || mpin;
     if (mpinString.length !== 4) {
@@ -81,12 +76,12 @@ export default function MpinLoginScreen() {
     setError("");
     const pseudoId = `${Device.brand}${Device.modelName}${userId}`;
     console.log('Login Attempt with pseudoId:', {
-      user_id: userId, mpin: mpinString, fcm_token: fcmToken, deviceId: pseudoId
+      user_id: userId, mpin: mpinString, fcm_token: fcmToken, deviceInfo: pseudoId
     });
     try {
       const response = await fetchData("app-employee-login-mpin", "POST", {
         user_id: userId, mpin: mpinString,
-        fcm_token: fcmToken, deviceId: pseudoId
+        fcm_token: fcmToken, deviceInfo: pseudoId
       });
       console.log("Login Response", JSON.stringify(response));
       if (response?.text === "Success") {
@@ -115,7 +110,6 @@ export default function MpinLoginScreen() {
       "USER_ID",
       "token"
     ]);
-
     navigation.replace("MobileLogin"); // go to normal login screen
   };
 
@@ -139,6 +133,7 @@ export default function MpinLoginScreen() {
       setLoading(false);
     }
   };
+  
   const isButtonDisabled = mpin.length !== 4 || loading;
   useEffect(() => {
     if (mpin.length < 4) {

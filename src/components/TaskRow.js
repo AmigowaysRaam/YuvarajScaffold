@@ -1,8 +1,8 @@
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import React, { useCallback, useRef } from "react";
+import { useNavigation } from "@react-navigation/native";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Animated, Image, ImageBackground, Pressable,
+  Image, ImageBackground, Pressable,
   StyleSheet, Text, View
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -24,47 +24,6 @@ const TAB_ITEMS = [
 const TaskRow = ({ homepageData }) => {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const leftAnim = useRef(new Animated.Value(-wp(50))).current;
-  const rightAnim = useRef(new Animated.Value(wp(50))).current;
-  const opacityLeft = useRef(new Animated.Value(0)).current;
-  const opacityRight = useRef(new Animated.Value(0)).current;
-  // useEffect(() => {
-  //   Alert.alert("Welcome Back!", "Check out your tasks for today.", JSON.stringify(homepageData))
-  // }, [])
-  useFocusEffect(
-    useCallback(() => {
-
-      leftAnim.setValue(-wp(50));
-      rightAnim.setValue(wp(50));
-      opacityLeft.setValue(0);
-      opacityRight.setValue(0);
-
-      Animated.parallel([
-        Animated.timing(leftAnim, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(rightAnim, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityLeft, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityRight, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, [])
-  );
-
-
   return (
     <>
       {/* 🔥 Create New Task at Top */}
@@ -73,7 +32,6 @@ const TaskRow = ({ homepageData }) => {
           style={{
             alignSelf: "center",
             marginTop: hp(2),
-            // marginBottom: hp(2),
             width: wp(94),
           }}
           onPress={() =>
@@ -82,7 +40,7 @@ const TaskRow = ({ homepageData }) => {
             })
           }
         >
-          <Animated.View>
+          <View>
             <View>
               <ImageBackground
                 resizeMode="cover"
@@ -94,7 +52,7 @@ const TaskRow = ({ homepageData }) => {
                     alignItems: "center",
                     justifyContent: "center",
                     height: hp(7),
-    backgroundColor: COLORS.primary, opacity: 0.9
+                    backgroundColor: COLORS.primary, opacity: 0.9
 
                   },
                 ]}
@@ -128,7 +86,7 @@ const TaskRow = ({ homepageData }) => {
                 </Text>
               </ImageBackground>
             </View>
-          </Animated.View>
+          </View>
         </Pressable>
       )}
 
@@ -136,8 +94,6 @@ const TaskRow = ({ homepageData }) => {
       <View style={styles.container}>
         {TAB_ITEMS.map((item, index) => {
           const isLeft = index === 0;
-          const translateX = isLeft ? leftAnim : rightAnim;
-          const opacity = isLeft ? opacityLeft : opacityRight;
 
           return (
             <Pressable
@@ -146,14 +102,11 @@ const TaskRow = ({ homepageData }) => {
                 navigation.navigate(item.route, { status: null })
               }
             >
-              <Animated.View
-                style={{ transform: [{ translateX }], opacity }}
-              >
                 <View style={styles.wrapper}>
                   <ImageBackground
                     resizeMode="cover"
                     // source={require("../../assets/buttonLgrd.png")}
-                    style={[styles.card,{
+                    style={[styles.card, {
                       backgroundColor: COLORS.primary, opacity: 0.9,
                       borderRadius: wp(2),
                     }]}
@@ -175,7 +128,6 @@ const TaskRow = ({ homepageData }) => {
                     </Text>
                   </ImageBackground>
                 </View>
-              </Animated.View>
             </Pressable>
           );
         })}
@@ -210,7 +162,7 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_600SemiBold",
     color: COLORS.white, fontSize: wp(3.3),
     lineHeight: hp(2.6),
-    flexShrink: 1,                // ⭐ KEY FIX
-    maxWidth: wp(30),             // ⭐ KEY FIX
+    flexShrink: 1,
+    maxWidth: wp(30),
   },
 });

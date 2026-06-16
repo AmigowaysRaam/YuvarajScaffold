@@ -58,7 +58,8 @@ const ShowTaskDetailModal = ({ visible, task, onClose, getStatusColor, onRefresh
           user_id: profileDetails?.id,
         });
         if (!response?.data?.ticket_detail?.status) {
-          navigation?.canGoBack() && navigation.goBack();
+          // navigation?.canGoBack() && navigation.goBack();
+          onClose();
         }
         setstatusList(response?.data?.ticketStatus);
       } catch (err) {
