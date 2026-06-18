@@ -21,7 +21,7 @@ export const loadTranslationsFromAPI = async (lang = "en") => {
     });
 
     const json = await response.json();
-    console.log("API Response for translations:", json);
+    // console.log("API Response for translations:", json);
     const translations = json.data || {};
     // Add translations to i18n
     i18n.addResourceBundle(lang, "translation", translations, true, true);

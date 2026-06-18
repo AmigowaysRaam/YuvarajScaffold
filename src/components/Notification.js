@@ -11,6 +11,7 @@ import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
 import CommonHeader from "./CommonHeader";
 import { fetchData } from "./api/Api";
+
 export default function Notification() {
   const navigation = useNavigation();
   const profileDetails = useSelector(

@@ -10,36 +10,36 @@ const TASKS_INFO = {
   open: {
     labelKey: "Open",
     icon: require("../../assets/open_task.png"),
-    bgColor: COLORS?.primary+"20",
+    bgColor: COLORS?.primary + "20",
   },
   in_progress: {
     labelKey: "Inprogress",
     icon: require("../../assets/inprogress.png"),
-    bgColor: COLORS?.primary+"25",
+    bgColor: COLORS?.primary + "25",
 
   },
   waiting_for_approval: {
     labelKey: "Waiting for QC",
     icon: require("../../assets/waitingApproval.png"),
-    bgColor: COLORS?.primary+"35",
+    bgColor: COLORS?.primary + "35",
 
   },
   completed: {
     labelKey: "Completed",
     icon: require("../../assets/completed.png"),
-    bgColor: COLORS?.primary+"10",
+    bgColor: COLORS?.primary + "10",
 
   },
   re_work: {
     labelKey: "Rework",
     icon: require("../../assets/rework.png"),
-    bgColor: COLORS?.primary+"15",
+    bgColor: COLORS?.primary + "15",
 
   },
   over_due: {   // 👈 NEW STATUS
     labelKey: "Overdue",
     icon: require("../../assets/alertmark.png"),
-    bgColor:'#FF0000',
+    bgColor: '#FF0000',
 
   },
 };
@@ -52,6 +52,10 @@ const AssignedTask = ({ homepageData }) => {
   const totalTasks = myTaskSection?.total_tasks || {};
   const taskKeys = Object.keys(TASKS_INFO);
   // --- Animated refs for each card ---
+  // Only show component if my_tasks section exists
+  if (!myTaskSection) {
+    return null;
+  }
   const todayAnimations = useRef(taskKeys.map(() => new Animated.Value(0))).current;
   const totalAnimations = useRef(taskKeys.map(() => new Animated.Value(0))).current;
   const overdueBlinkAnim = useRef(new Animated.Value(1)).current;
@@ -155,7 +159,7 @@ const AssignedTask = ({ homepageData }) => {
   };
   return (
     <View style={{
-      backgroundColor: COLORS?.primary+'10',width: wp(100), alignItems: "center", marginTop: hp(2.5),
+      backgroundColor: COLORS?.primary + '10', width: wp(100), alignItems: "center", marginTop: hp(2.5),
       paddingVertical: hp(2),
       alignSelf: "center",
 
@@ -248,7 +252,8 @@ const styles = StyleSheet.create({
   }, taskCard: {
     width: wp(46), height: hp(6.5), borderRadius: wp(1.5), alignItems: "center",
     flexDirection: "row", paddingHorizontal: wp(1), marginBottom: hp(1),
-  }, icon: { width: wp(12), height: wp(12),
+  }, icon: {
+    width: wp(12), height: wp(12),
   }, viewButton: {
     backgroundColor: COLORS?.primary + "20", padding: wp(1.5), borderRadius: wp(1.5),
   }, viewButtonText: {

@@ -1,17 +1,24 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Animated, Image, ImageBackground, Pressable, StyleSheet, Text, View,
+  Animated,
+  Image, ImageBackground, Pressable, StyleSheet, Text, View,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
-
 const AttendanceDetails = ({ homepageData }) => {
-
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const [attendanceSummary, setAttendanceSummary] = useState({
+    total_days: 0,
+    present_days: 0,
+    half_days: 0,
+    absent_days: 0,
+    late_days: 0,
+    hours_worked: 0,
+  });
 
   const data = {
     attendance: {
@@ -89,22 +96,34 @@ const AttendanceDetails = ({ homepageData }) => {
   };
 
   const attendance = data.attendance;
-  const attendanceSection = attendance;
+
   const todayData = {};
   attendance.cards.forEach((item) => {
     todayData[item.key] = item.value;
   });
 
   const keys = attendance.cards.map((i) => i.key);
-  const animations = useRef(keys.map(() => new Animated.Value(0))).current;
+
+  const animations = useRef(
+    keys.map(() => new Animated.Value(0))
+  ).current;
 
   useEffect(() => {
-    const myTaskSection = homepageData?.sections?.find(
+    const attendanceSection = homepageData?.sections?.find(
       (item) => item.section === "attendance_summary"
     );
-    // console.log(JSON.stringify(homepageData),"home")
+    console.log(
+      JSON.stringify(attendanceSection),
+      "attendance_summary"
+    );
 
-    // attendance_summary
+    if (attendanceSection?.attendance_summary) {
+      setAttendanceSummary(
+        attendanceSection.attendance_summary
+      );
+      // {"section":"attendance_summary","attendance_summary":{"total_days":30,"present_days":0,"half_days":3,"absent_days":15,"late_days":0,"hours_worked":6.69}} attendance_summary     this is console data
+    }
+
     const staggerAnims = animations.map((anim) =>
       Animated.timing(anim, {
         toValue: 1,
@@ -112,8 +131,9 @@ const AttendanceDetails = ({ homepageData }) => {
         useNativeDriver: true,
       })
     );
+
     Animated.stagger(120, staggerAnims).start();
-  }, []);
+  }, [homepageData]);
 
   const formattedDate = new Date().toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -123,9 +143,31 @@ const AttendanceDetails = ({ homepageData }) => {
 
   const currentMonth = attendance.month;
 
-  const renderCard = (key, value, animValue) => {
-    const info = attendance.cards.find((c) => c.key === key);
+  const totalWorkingDays =
+    attendanceSummary?.total_days ??
+    attendance.totalWorkingDays;
 
+  const presentDays =
+    attendanceSummary?.present_days ??
+    attendance.presentDays;
+
+  const absentDays =
+    attendanceSummary?.absent_days ??
+    attendance.leaveDays;
+
+  const halfDays =
+    attendanceSummary?.half_days ?? 0;
+
+  const lateDays =
+    attendanceSummary?.late_days ?? 0;
+
+  const hoursWorked =
+    attendanceSummary?.hours_worked ?? 0;
+
+  const renderCard = (key, value, animValue) => {
+    const info = attendance.cards.find(
+      (c) => c.key === key
+    );
     return (
       <Pressable key={key} style={styles.cardWrapper}>
         <Animated.View
@@ -145,30 +187,47 @@ const AttendanceDetails = ({ homepageData }) => {
             },
           ]}
         >
-          <Image style={styles.icon} source={info.icon} />
+          <Image
+            style={styles.icon}
+            source={info.icon}
+          />
+
           <View style={styles.cardTextContainer}>
-            <Text style={styles.taskLabel}>{info.label}</Text>
-            <Text style={styles.taskValue}>{value || "00:00"}</Text>
+            <Text style={styles.taskLabel}>
+              {info.label}
+            </Text>
+
+            <Text style={styles.taskValue}>
+              {value || "00:00"}
+            </Text>
           </View>
         </Animated.View>
       </Pressable>
     );
   };
+
   return (
     <View style={styles.container}>
       <Pressable
         onPress={() =>
-          navigation?.navigate("AttendanceLog", { hData: data })
+          navigation.navigate("AttendanceLog", {
+            hData: data,
+          })
         }
       >
         <View style={styles.headerRow}>
-          <Text numberOfLines={1} style={styles.title}>
+          <Text
+            numberOfLines={1}
+            style={styles.title}
+          >
             {`${currentMonth}-${attendance.year}`}
           </Text>
 
           <Pressable
             onPress={() =>
-              navigation?.navigate("AttendanceLog", { hData: data })
+              navigation.navigate("AttendanceLog", {
+                hData: data,
+              })
             }
             style={styles.viewButton}
           >
@@ -181,52 +240,113 @@ const AttendanceDetails = ({ homepageData }) => {
           </Pressable>
         </View>
 
-        {/* SECOND ROW */}
-        <View style={[styles.headerRow, { marginVertical: wp(1) }]}>
-          <Text style={[styles.title, { fontSize: wp(3.5) }]}>
-            {`Total Working Days - ${attendance.totalWorkingDays}`}
+        <View
+          style={[
+            styles.headerRow,
+            { marginVertical: wp(1) },
+          ]}
+        >
+          <Text
+            style={[
+              styles.title,
+              { fontSize: wp(3.5) },
+            ]}
+          >
+            {`Total Working Days - ${totalWorkingDays}`}
           </Text>
 
-          {/* ✅ PAYROLL BUTTON (ADDED ONLY) */}
           <Pressable
             onPress={() =>
-              navigation?.navigate("PayrollLogScreen", { hData: data })
+              navigation.navigate(
+                "PayrollLogScreen",
+                { hData: data }
+              )
             }
-            style={[styles.viewSButton, { backgroundColor: COLORS.primary }]}
+            style={[
+              styles.viewSButton,
+              { backgroundColor: COLORS.primary },
+            ]}
           >
-            <Text style={[styles.viewButtonText, { color: "#fff" }]}>
+            <Text
+              style={[
+                styles.viewButtonText,
+                { color: "#fff" },
+              ]}
+            >
               Payroll
             </Text>
           </Pressable>
         </View>
+
         <ImageBackground
           style={[
             styles.summaryCard,
-            { backgroundColor: COLORS.primary, borderRadius: wp(2) },
+            {
+              backgroundColor: COLORS.primary,
+              borderRadius: wp(2),
+            },
           ]}
         >
           <View style={styles.summaryHalf}>
             <Text style={styles.summaryText}>
-              {`${t("Present Days")}: ${attendance.presentDays}`}
+              {`${t("Present Days")}: ${presentDays}`}
             </Text>
           </View>
+
           <View style={styles.divider} />
+
           <View style={styles.summaryHalf}>
             <Text style={styles.summaryText}>
-              {`${t("Leave Days")}: ${attendance.leaveDays}`}
+              {`${t("Absent Days")}: ${absentDays}`}
             </Text>
           </View>
         </ImageBackground>
-        <Text style={styles.dateText}>{formattedDate}</Text>
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: hp(1),
+            paddingHorizontal: wp(2),
+          }}
+        >
+          <Text style={styles.taskLabel}>
+            Half Days: {halfDays}
+          </Text>
+
+          <Text style={styles.taskLabel}>
+            Late Days: {lateDays}
+          </Text>
+
+          <Text style={styles.taskLabel}>
+            Hours: {hoursWorked}
+          </Text>
+        </View>
+
+        <Text style={styles.dateText}>
+          {formattedDate}
+        </Text>
+
         <View style={styles.grid}>
           {keys.map((key, index) =>
-            renderCard(key, todayData[key], animations[index])
+            renderCard(
+              key,
+              todayData[key],
+              animations[index]
+            )
           )}
         </View>
+
         <View style={{ marginTop: hp(2) }}>
-          <Text style={[styles.taskLabel, { fontSize: wp(3.8) }]}>
+          <Text
+            style={[
+              styles.taskLabel,
+              { fontSize: wp(3.8) },
+            ]}
+          >
             Break Details
           </Text>
+
           {attendance.break_details.map((item) => (
             <View
               key={item.key}
@@ -238,26 +358,49 @@ const AttendanceDetails = ({ homepageData }) => {
                 },
               ]}
             >
-              <Image style={styles.icon} source={item.icon} />
+              <Image
+                style={styles.icon}
+                source={item.icon}
+              />
+
               <View style={styles.cardTextContainer}>
-                <Text style={styles.taskLabel}>{item.label}</Text>
-                <Text style={styles.taskValue}>{item.value}</Text>
+                <Text style={styles.taskLabel}>
+                  {item.label}
+                </Text>
+
+                <Text style={styles.taskValue}>
+                  {item.value}
+                </Text>
               </View>
             </View>
           ))}
+
           <Pressable
-            onPress={() => {
-              navigation?.navigate('LeaveManagement')
-            }}
+            onPress={() =>
+              navigation.navigate(
+                "LeaveManagement"
+              )
+            }
             style={{
-              width: wp(90), height: hp(5), alignSelf: "center", marginTop: hp(2), backgroundColor: COLORS?.primary,
-              alignItems: "center", justifyContent: "center",
-              borderRadius: wp(5)
-            }}>
-            <Text style={{
-              fontFamily: 'Poppins_500SemiBold',
-              fontSize: wp(4), color: COLORS?.white, lineHeight: hp(5)
-            }}>
+              width: wp(80),
+              height: hp(5),
+              alignSelf: "center",
+              marginTop: hp(2),
+              backgroundColor: COLORS.primary,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: wp(5),
+            }}
+          >
+            <Text
+              style={{
+                fontFamily:
+                  "Poppins_500SemiBold",
+                fontSize: wp(4),
+                color: COLORS.white,
+                lineHeight: hp(5),
+              }}
+            >
               Apply Leave
             </Text>
           </Pressable>
@@ -266,7 +409,9 @@ const AttendanceDetails = ({ homepageData }) => {
     </View>
   );
 };
+
 export default AttendanceDetails;
+
 const styles = StyleSheet.create({
   container: {
     width: "94%", alignSelf: "center", backgroundColor: "#f9f9f9",

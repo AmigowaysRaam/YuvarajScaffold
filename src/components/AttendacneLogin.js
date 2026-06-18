@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import * as Device from 'expo-device';
 import { useEffect, useRef, useState } from "react";
 import {
   Animated, Image, Modal, Pressable, StyleSheet, Text,
@@ -10,6 +11,7 @@ import { useSelector } from "react-redux";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
 import VersionUpgradeModal from "./VersionUpgradeModal";
+import { fetchData } from "./api/Api";
 
 export default function AttHeader({
   notificationCount = "0",
@@ -40,15 +42,27 @@ export default function AttHeader({
   }, [notifCountNum]);
 
   const handleLogout = async () => {
+    const pseudoId = `${Device.brand}${Device.modelName}${profileDetails.id}`;
     try {
-      setLogoutVisible(false);
-      await AsyncStorage.clear();
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "MobileLogin" }],
-      });
+      const response = await fetchData(
+        "app-employee-logout",
+        "POST",
+        {
+          user_id: profileDetails.id,
+          deviceInfo: pseudoId
+        }
+      );
+      if (response?.text == 'Success') {
+        await AsyncStorage.clear();
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "MobileLogin" }],
+        });
+      }
     } catch (error) {
-      console.log("Logout Error:", error);
+      console.error("logout API Error:", error);
+    } finally {
+      setLogoutVisible(false);
     }
   };
 

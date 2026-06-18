@@ -62,7 +62,6 @@ export const PunchCard = React.memo(({ onLoading }) => {
       if (response?.success) {
         setallowPunchIn(response.mobileAttendanceEnabled);
         setIsPunchedIn(response.is_punched_in);
-        // setloginTime setlogoutTime
         setloginTime(response?.login_time)
         setlogoutTime(response?.logout_time)
 
@@ -234,7 +233,36 @@ export const PunchCard = React.memo(({ onLoading }) => {
 
   return (
     !allowPunchIn ?
-      null
+      <Pressable
+        style={styles.attendanceCard}
+        onPress={() =>
+          navigation.navigate("AttendanceLogScreen")
+        }
+      >
+        <View style={styles.attendanceContent}>
+          <Icon
+            name="history"
+            type="material"
+            size={24}
+            color={COLORS.primary}
+          />
+          <View style={{ flex: 1, marginLeft: 12 }}>
+            <Text style={styles.attendanceTitle}>
+              Attendance Log
+            </Text>
+            <Text style={styles.attendanceSubTitle}>
+              View attendance activity history
+            </Text>
+          </View>
+
+          <Icon
+            name="chevron-right"
+            type="material"
+            size={24}
+            color="#999"
+          />
+        </View>
+      </Pressable>
       :
       <>
         <Animated.View
@@ -480,6 +508,37 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   }, rightSection: {
     alignItems: "center",
+  },
+  attendanceCard: {
+    backgroundColor: "#FFF",
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 12,
+    padding: 14,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+  },
+  
+  attendanceContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  attendanceTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#222",
+  },
+  
+  attendanceSubTitle: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 2,
   },
 
   attendanceButton: {

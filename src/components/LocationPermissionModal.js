@@ -1,13 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import React, { useEffect, useState } from "react";
 import {
-    Linking,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Linking,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function LocationPermissionModal({
@@ -17,10 +18,19 @@ export default function LocationPermissionModal({
 
   const requestPermission = async () => {
     try {
-      const { status } =
+      // LOCATION PERMISSION
+      const { status: locationStatus } =
         await Location.requestForegroundPermissionsAsync();
 
-      if (status === "granted") {
+      // CAMERA PERMISSION
+      const { status: cameraStatus } =
+        await Camera.requestCameraPermissionsAsync();
+
+      const locationGranted = locationStatus === "granted";
+      const cameraGranted = cameraStatus === "granted";
+
+      // If both permissions are granted
+      if (locationGranted && cameraGranted) {
         const location =
           await Location.getCurrentPositionAsync({
             accuracy: Location.Accuracy.High,
@@ -36,7 +46,7 @@ export default function LocationPermissionModal({
         setVisible(true);
       }
     } catch (error) {
-      console.log("Location Error:", error);
+      console.log("Permission Error:", error);
       setVisible(true);
     }
   };
@@ -46,25 +56,17 @@ export default function LocationPermissionModal({
   }, []);
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-    >
+    <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.card}>
-          <Ionicons
-            name="location-outline"
-            size={70}
-            color="#2563EB"
-          />
+          <Ionicons name="location-outline" size={70} color="#2563EB" />
 
           <Text style={styles.title}>
-            Location Permission Required
+            Permissions Required
           </Text>
 
           <Text style={styles.message}>
-            Please allow location access to continue.
+            Please allow location and camera access to continue.
           </Text>
 
           <TouchableOpacity
@@ -72,13 +74,11 @@ export default function LocationPermissionModal({
             onPress={requestPermission}
           >
             <Text style={styles.buttonText}>
-              Grant Permission
+              Grant Permissions
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => Linking.openSettings()}
-          >
+          <TouchableOpacity onPress={() => Linking.openSettings()}>
             <Text style={styles.settingsText}>
               Open Settings
             </Text>

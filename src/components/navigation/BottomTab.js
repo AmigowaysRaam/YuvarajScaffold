@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React, { useEffect, useRef } from "react";
 import {
-  Animated, Image, ImageBackground, StyleSheet, Text, TouchableOpacity,
+  Animated, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View
 } from "react-native";
 import { useSelector } from "react-redux";
 import { COLORS } from "../../../app/resources/colors";
@@ -163,25 +163,29 @@ export default function BottomTab() {
     }));
 
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-      tabBar={(props) => (
-        <CustomTabBar
-          {...props}
-          menus={visibleMenus}
-        />
-      )}
-    >
-      {visibleMenus.map((menu) => (
-        <Tab.Screen
-          key={menu.key}
-          name={menu.label}
-          component={menu.component}
-        />
-      ))}
-    </Tab.Navigator>
+    <View style={{
+      flex: 1, backgroundColor: "#FFF",
+    }}>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+        tabBar={(props) => (
+          <CustomTabBar
+            {...props}
+            menus={visibleMenus}
+          />
+        )}
+      >
+        {visibleMenus.map((menu) => (
+          <Tab.Screen
+            key={menu.key}
+            name={menu.label}
+            component={menu.component}
+          />
+        ))}
+      </Tab.Navigator>
+    </View>
   );
 }
 const styles = StyleSheet.create({

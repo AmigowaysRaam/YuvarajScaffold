@@ -8,10 +8,12 @@ import ChangeMpin from '../ChangeMpin';
 import CreateMpin from '../CreateMpin';
 import CreateTask from '../CreateTask';
 import forgetotpVerfication from '../forgetotpVerfication';
+import LeadDetailtScreen from '../LeadDetailtScreen';
 import LeadListScreen from '../LeadListScreen';
 import LeaveManagement from '../LeaveManagement';
 import Login from '../Login';
 import MaintainancePage from '../MaintainancePage';
+import MeetingTimeLine from '../MeetingTimeLine';
 import MobileLogin from '../MobileLogin';
 import MpinLoginScreen from '../MpinLoginScreen';
 import MyTaskListScreen from '../MyTaskListScreen';
@@ -23,11 +25,13 @@ import PayRollScreen from '../PayRollScreen';
 import PrivacyPolicyScreen from '../PrivacyPolicy';
 import Remainder from '../Remainder';
 import ResetMpin from '../ResetMpin';
+import SalesLocationScreen from '../SalesLoc';
 import SettingsScreen from '../Settings';
 import SplashScreen from '../SplashScreen';
 import TasKDetailById from '../TasKDetailById';
 import TaskDetails from '../TaskDetails';
 import TermsScreen from '../Terms';
+import TodayMeetingsLIsts from '../TodayMeetingsLIsts';
 import UpdateTask from '../UpdateTask';
 import BottomTab from './BottomTab';
 export default function StackNavi() {
@@ -66,9 +70,17 @@ export default function StackNavi() {
       <Stack.Screen name='AttendanceLoginScreen' component={AttendanceLoginScreen} />
       <Stack.Screen name='AttendanceActivity' component={AttendanceActivity} />
       <Stack.Screen name='LeaveManagement' component={LeaveManagement} />
+      <Stack.Screen name='LeadDetailtScreen' component={LeadDetailtScreen} />
+      <Stack.Screen name='TodayMeetingsLIsts' component={TodayMeetingsLIsts} />
+      <Stack.Screen name='MeetingTimeLine' component={MeetingTimeLine} />
+
       <Stack.Screen
         name="LeadListScreen"
         component={LeadListScreen}
+      />
+      <Stack.Screen
+        name="SalesLocationScreen"
+        component={SalesLocationScreen}
       />
     </Stack.Navigator>
   );

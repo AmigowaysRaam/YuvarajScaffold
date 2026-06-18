@@ -3,11 +3,7 @@ import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
+  FlatList, RefreshControl, StyleSheet, Text, View,
 } from "react-native";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";

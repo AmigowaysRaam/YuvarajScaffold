@@ -10,41 +10,48 @@ const TASKS_INFO = {
   open: {
     labelKey: "Open",
     icon: require("../../assets/open_task.png"),
-    bgColor: COLORS?.primary+"20",
+    bgColor: COLORS?.primary + "20",
   },
   in_progress: {
     labelKey: "Inprogress",
     icon: require("../../assets/inprogress.png"),
-    bgColor: COLORS?.primary+"25",
+    bgColor: COLORS?.primary + "25",
   },
   waiting_for_approval: {
     labelKey: "Waiting for QC",
     icon: require("../../assets/waitingApproval.png"),
-    bgColor: COLORS?.primary+"15",
+    bgColor: COLORS?.primary + "15",
   },
   completed: {
     labelKey: "Completed",
     icon: require("../../assets/completed.png"),
-    bgColor: COLORS?.primary+"25",
+    bgColor: COLORS?.primary + "25",
   },
   re_work: {
     labelKey: "Rework",
     icon: require("../../assets/rework.png"),
-    bgColor:COLORS?.primary+"35",
+    bgColor: COLORS?.primary + "35",
   },
   over_due: {   // 👈 NEW STATUS
     labelKey: "Overdue",
     icon: require("../../assets/alertmark.png"),
-    bgColor:'#FF0000',
+    bgColor: '#FF0000',
   },
 };
+
 const MyTask = ({ homepageData }) => {
   const { t } = useTranslation();
   const myTaskSection = homepageData?.sections?.find(
     (item) => item.section === "my_tasks"
   );
+  // Only show component if my_tasks section exists
+  if (!myTaskSection) {
+    return null;
+  }
+  // Only if it is myTaskSection show this compoenent
   const overdueBlinkAnim = useRef(new Animated.Value(1)).current;
   useEffect(() => {
+    // console.log(myTaskSection,'myTaskSection')
     const blinkLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(overdueBlinkAnim, {
@@ -107,8 +114,9 @@ const MyTask = ({ homepageData }) => {
 
     return (
       <Pressable
-        style={{ opacity: numericValue > 0 ? 1 : 0.9 ,
-          alignSelf:"center"
+        style={{
+          opacity: numericValue > 0 ? 1 : 0.9,
+          alignSelf: "center"
         }}
         key={`${keyPrefix}-${key}`}
         onPress={() => {
@@ -166,10 +174,10 @@ const MyTask = ({ homepageData }) => {
   };
   return (
     <View style={{
-      backgroundColor: COLORS?.primary+'10', 
-      width: wp(100),alignSelf:"center", 
+      backgroundColor: COLORS?.primary + '10',
+      width: wp(100), alignSelf: "center",
       alignItems: "center", paddingVertical: hp(2), marginTop: hp(1),
-      
+
     }}>
       <View style={styles.wrapper}>
         <Pressable onPress={() => navigation.navigate("MyTaskListScreen", { status: null, })} style={styles.headerRow}>
@@ -178,8 +186,8 @@ const MyTask = ({ homepageData }) => {
           }]}>
             {`${t("my_task")}`}
           </Text>
-          <Pressable onPress={() => navigation?.navigate('MyTaskListScreen', 
-             { status: null, }
+          <Pressable onPress={() => navigation?.navigate('MyTaskListScreen',
+            { status: null, }
           )} style={styles.viewButton}>
             <Text style={styles.viewButtonText}>
               <Icon name="arrow-right" type="feather" color={COLORS.primary} size={wp(5)} />
@@ -187,7 +195,6 @@ const MyTask = ({ homepageData }) => {
           </Pressable>
         </Pressable>
         <Pressable onPress={() => navigation.navigate("MyTaskListScreen", { status: null, })}>
-          {/* <Text style={styles.greeting}>{t("my_task")}</Text> */}
           <View
             style={{
               flexDirection: "row",
@@ -245,7 +252,7 @@ export default MyTask;
 const styles = StyleSheet.create({
   wrapper: {
     marginHorizontal: wp(2),
-    alignSelf:"center"
+    alignSelf: "center"
   },
   headerRow: {
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
@@ -274,7 +281,7 @@ const styles = StyleSheet.create({
     width: wp(46), height: hp(6.5), borderRadius: wp(1.5), alignItems: "center",
     flexDirection: "row", paddingHorizontal: wp(1),
     marginBottom: hp(1),
-    alignSelf:"center"
+    alignSelf: "center"
   },
   icon: {
     width: wp(12), height: wp(12),

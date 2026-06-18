@@ -117,15 +117,15 @@ export default function SplashScreen() {
       );
     }
   };
-
   const fnGetToken = async () => {
+    // navigation.replace("SalesLocationScreen");
     try {
       await loadStoredLanguage();
       const tokenResponse = await fetchData(
         "app-employee-generate-token",
         "POST"
       );
-      console.log("🔑 Token Response:", tokenResponse);
+
       if (tokenResponse?.text === "Success") {
         dispatch(setTokens(tokenResponse));
         const siteDetailsData = await fetchData(
@@ -135,14 +135,14 @@ export default function SplashScreen() {
             Authorization: `${tokenResponse?.token}`,
           }
         );
-        console.log("🔑 siteDetailsData Response:", siteDetailsData);
+        // console.log("🔑 siteDetailsData Response:", siteDetailsData);
         if (siteDetailsData?.text === "Success") {
           if (siteDetailsData?.data?.[0]?.site_mode == "1") {
             navigation.replace("MaintainancePage");
             return;
           }
           dispatch(setSiteDetails(siteDetailsData));
-          console.log("siteDetailsData Response:", siteDetailsData);
+          // console.log("siteDetailsData Response:", siteDetailsData);
           const userDataString =
             await AsyncStorage.getItem("USER_DATA");
           const userData = JSON.parse(userDataString);

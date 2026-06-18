@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import * as Device from 'expo-device';
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -47,6 +48,8 @@ export default function MyTaskListScreen({ route }) {
   const fetchTasks = async (pageNo = 1, isRefresh = false, status = selectedStatus, dateRange = selectedDateRange) => {
     if (!hasMore && !isRefresh) return;
     const lang = await getStoredLanguage();
+    const pseudoId = `${Device.brand}${Device.modelName}${profileDetails.id}`;
+
     setLoading(pageNo === 1);
     try {
       const statusValue = status ? getStatusValue(status) : null;
@@ -60,6 +63,7 @@ export default function MyTaskListScreen({ route }) {
         search: searchText || null,
         ...(statusValue && { status: statusValue }),
         todayKey: todayKey || null,
+        deviceInfo: pseudoId
       });
       if (response?.text === "Success") {
         let data = response?.data?.tasks || [];

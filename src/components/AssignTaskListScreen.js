@@ -1,5 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
+import * as Device from 'expo-device';
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -19,6 +21,7 @@ import CommonHeader from "./CommonHeader";
 import DateandDownloadTask from "./DateandDownloadTask";
 import SearchContainer from "./SearchContainer";
 import ShowTaskDetailModal from "./ShowTaskDetailModal.js";
+
 export default function AssignedTasklistScreen() {
   const navigation = useNavigation();
   const { t } = useTranslation();
@@ -63,6 +66,8 @@ export default function AssignedTasklistScreen() {
   ) => {
     if (!hasMore && !isRefresh) return;
     if (!profileDetails?.id) return;
+    const pseudoId = `${Device.brand}${Device.modelName}${profileDetails.id}`;
+
     const lang = await getStoredLanguage();
     setLoading(pageNo === 1);
     try {
@@ -83,12 +88,12 @@ export default function AssignedTasklistScreen() {
           to: dateRange?.to || null,
           todayKey: todayKey || null,
           ...(statusValue && { status: statusValue }),
+          deviceInfo: pseudoId
         }
       );
-
+console.log(response,'Assigned TASK')
       if (response?.text === "Success") {
         let data = response?.data?.tasks || [];
-
         // Preserve your existing logic
         setallowCreateTask(response?.data?.allowCreateTask);
         setCanAssign(response?.data?.canAssign);
@@ -127,10 +132,24 @@ export default function AssignedTasklistScreen() {
 
         setPage(pageNo);
       } else {
+        if (response?.forceLogout) {
+          await AsyncStorage.clear();
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "MobileLogin" }],
+          });
+          showToast(response?.message, "info");
+        }
         showToast(
           response?.message || "Failed to fetch tasks",
           "error"
         );
+
+
+
+
+
+
       }
     } catch (err) {
       console.error("Task API Error:", err);
@@ -248,7 +267,7 @@ export default function AssignedTasklistScreen() {
                     onDateSelect={(range) => {
                       setSelectedDateRange(range);
                       setHasMore(true);
-                      fetchTasks(1, true, selectedStatus, range); 
+                      fetchTasks(1, true, selectedStatus, range);
                     }}
                     onDownload={() => showToast('Task list download is in progress...', 'info')}
                   />

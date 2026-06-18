@@ -15,9 +15,7 @@ import AttendTableHeader from "./AttendanceTblHead";
 import CommonHeader from "./CommonHeader";
 import CustomDropdownData from "./CustomDropDownwihtUI";
 import { fetchData } from "./api/Api";
-
 export default function AttendanceLog({ route }) {
-
   const navigation = useNavigation();
   const [summaryData, setSummaryData] = useState({
     total_days: 0, present_days: 0, absent_days: 0, late_days: 0,
@@ -31,17 +29,14 @@ export default function AttendanceLog({ route }) {
   const [yearDropdownVisible, setYearDropdownVisible] = useState(false);
   const [monthDropdownVisible, setMonthDropdownVisible] = useState(false);
   const [selectedYear, setSelectedYear] = useState(dayjs().year());
-  const [selectedMonth, setSelectedMonth] = useState(null); // 1-12
-
+  const [selectedMonth, setSelectedMonth] = useState(dayjs().month() + 1);
   const flatListRef = useRef();
   const profileDetails = useSelector(
     (state) => state?.auth?.profileDetails?.data
   );
-
   useEffect(() => {
     loadAttendance();
   }, [selectedMonth, selectedYear]);
-
   const loadAttendance = async () => {
     try {
       setRefreshing(true);
@@ -50,7 +45,7 @@ export default function AttendanceLog({ route }) {
         "employee-attendance-log",
         "POST",
         {
-          employee_id: "6a2918dc2de30e591d60b805",
+          employee_id: profileDetails?.id,
           month: selectedMonth,
           year: selectedYear,
         }

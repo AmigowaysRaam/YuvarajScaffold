@@ -115,7 +115,6 @@ export default function AttendanceActivity() {
 
   const renderEmployee = ({ item }) => {
     const statusColor = getStatusColor(item.status);
-
     return (
       <View style={styles.employeeCard}>
         <View style={styles.topRow}>
@@ -146,13 +145,19 @@ export default function AttendanceActivity() {
           />
 
           <Text style={styles.infoText}>
-            Login Time: {item.loginTime}
+            Login : {item.loginTime}
           </Text>
+          {
+            item?.logoutTime &&
+
+            <Text style={styles.infoText}>
+              Logout : {item?.logoutTime || '-'}
+            </Text>
+          }
         </View>
       </View>
     );
   };
-
   return (
     <View style={styles.container}>
       <AttHeader
@@ -181,7 +186,6 @@ export default function AttendanceActivity() {
           color="#888"
           style={{ marginRight: 8 }}
         />
-
         <TextInput
           placeholder="Search employee..."
           placeholderTextColor="#999"
@@ -189,7 +193,6 @@ export default function AttendanceActivity() {
           onChangeText={setSearchText}
           style={styles.searchInput}
         />
-
         {searchText.length > 0 && (
           <Ionicons
             name="close-circle"
@@ -334,13 +337,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: wp(3),
   },
-
   employeeName: {
     fontSize: wp(4),
     fontWeight: "700",
     color: "#222",
+    textTransform:"capitalize"
   },
-
   employeeId: {
     fontSize: wp(3),
     color: "#888",
@@ -357,5 +359,6 @@ const styles = StyleSheet.create({
     marginLeft: wp(2),
     fontSize: wp(3.3),
     color: "#555",
+    fontFamily: "Poppins_600SemiBold"
   },
 });

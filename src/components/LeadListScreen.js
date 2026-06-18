@@ -1,36 +1,26 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  Animated,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+  Animated, FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View
 } from "react-native";
+import { useSelector } from "react-redux";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
 import CommonHeader from "./CommonHeader";
-
+import { fetchData } from "./api/Api";
 const statuses = ["All", "Active", "Inactive", "Pending"];
-
 const generateLeads = () =>
   Array.from({ length: 20 }).map((_, i) => {
     const status = ["Active", "Inactive", "Pending"][i % 3];
     return {
-      id: i + 1,
-      name: `Lead ${i + 1}`,
-      phone: `98765${1000 + i}`,
-      status,
+      id: i + 1, name: `Lead ${i + 1}`,
+      phone: `98765${1000 + i}`, status,
       address: `No.${i + 10}, MG Road, Madurai, Tamil Nadu`,
     };
   });
 
 const getInitials = (name) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase();
-
 const getStatusColor = (status) => {
   switch (status) {
     case "Active":
@@ -43,11 +33,8 @@ const getStatusColor = (status) => {
       return "#6B7280";
   }
 };
-
-/* ---------------- Skeleton ---------------- */
 const SkeletonCard = () => {
   const opacity = new Animated.Value(0.3);
-
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -64,7 +51,6 @@ const SkeletonCard = () => {
       ])
     ).start();
   }, []);
-
   return (
     <Animated.View style={[styles.skeletonCard, { opacity }]}>
       <View style={styles.skeletonAvatar} />
@@ -89,13 +75,40 @@ const LeadListScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [leads, setLeads] = useState([]);
   useEffect(() => {
+    getListofLeads()
     setTimeout(() => {
       setLeads(generateLeads());
       setLoading(false);
     }, 1200);
   }, []);
 
-  /* 🔄 Pull to refresh */
+  const profileDetails = useSelector(
+    (state) => state?.auth?.profileDetails?.data
+  );
+  const getListofLeads = async () => {
+    try {
+      const response = await fetchData(
+        "my-leads-list",
+        "POST",
+        {
+          userId: profileDetails?.id,
+          per_page: 10, pageNo: 1,
+          limit: 10, filter: search
+        }
+      );
+      console.log(response, "leads response")
+      if (response?.success) {
+
+      } else {
+      }
+    } catch (error) {
+      console.error("my-leads-list API Error:", error);
+    } finally {
+
+    }
+  }
+
+
   const onRefresh = () => {
     setRefreshing(true);
 
@@ -104,7 +117,6 @@ const LeadListScreen = () => {
       setRefreshing(false);
     }, 1000);
   };
-
   /* filtered list */
   const filteredLeads = useMemo(() => {
     return leads.filter((item) => {
@@ -129,22 +141,23 @@ const LeadListScreen = () => {
       Inactive: 0,
       Pending: 0,
     };
-
     leads.forEach((l) => {
       counts[l.status] += 1;
     });
-
     return counts;
   }, [leads]);
 
   const renderItem = ({ item }) => (
-    <Pressable style={styles.card}>
+    <Pressable onPress={() => {
+      navigation?.navigate('LeadDetailtScreen', {
+        item: item
+      })
+    }} style={styles.card}>
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>
           {getInitials(item.name)}
         </Text>
       </View>
-
       <View style={styles.info}>
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.sub}>{item.phone}</Text>
@@ -208,8 +221,6 @@ const LeadListScreen = () => {
           </Pressable>
         ))}
       </View>
-
-      {/* LIST */}
       {loading ? (
         <View style={{ padding: wp(4) }}>
           {[...Array(6)].map((_, i) => (

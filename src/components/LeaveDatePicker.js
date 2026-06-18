@@ -7,22 +7,15 @@ import {
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
+import { useToast } from "../../constants/ToastContext";
 const MONTHS = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ];
 const YEARS = Array.from({ length: 50 }, (_, i) => 2000 + i);
 
-const LeaveDatePicker = ({
-    visible,
-    onClose,
-    onConfirm,
-    initialFrom,
-    initialTo,
-    title,
-    restrictFeatureDate,
-    disablePastDates,
-    maxDateSelect
+const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
+    initialTo, title, restrictFeatureDate, disablePastDates, maxDateSelect
 }) => {
     const today = dayjs();
     const isDisabled = (day) => {
@@ -46,6 +39,10 @@ const LeaveDatePicker = ({
 
     const [fromDate, setFromDate] = useState(initialFrom ? dayjs(initialFrom) : null);
     const [toDate, setToDate] = useState(initialTo ? dayjs(initialTo) : null);
+
+    const [errors, setError] = useState(null);
+
+
 
     const [fromText, setFromText] = useState(initialFrom ? dayjs(initialFrom).format("DD/MM/YYYY") : "");
     const [toText, setToText] = useState(initialTo ? dayjs(initialTo).format("DD/MM/YYYY") : "");
@@ -95,6 +92,7 @@ const LeaveDatePicker = ({
             }
         }
     };
+    const { showToast } = useToast();
 
     useEffect(() => {
         if (visible) {
@@ -104,6 +102,8 @@ const LeaveDatePicker = ({
 
     // Calendar selection
     const selectDate = (day) => {
+        setError(null);
+
         if (maxDateSelect === 1) {
             setFromDate(day);
             setToDate(null);
@@ -111,7 +111,7 @@ const LeaveDatePicker = ({
             setToText("");
             return;
         }
-    
+
         // start new selection OR reset
         if (!fromDate || (fromDate && toDate)) {
             setFromDate(day);
@@ -120,19 +120,14 @@ const LeaveDatePicker = ({
             setToText("");
             return;
         }
-    
-        // prevent reverse selection
+
         if (day.isBefore(fromDate, "day")) return;
-    
-        // ❌ NEW: enforce max range limit
+
         if (isRangeExceeded(fromDate, day)) {
-            Alert.alert(
-                "Limit reached",
-                `You can select maximum ${maxDateSelect} days`
-            );
+            setError(`You can select maximum ${maxDateSelect} days`);
             return;
         }
-    
+
         setToDate(day);
         setToText(day.format("DD/MM/YYYY"));
     };
@@ -188,9 +183,9 @@ const LeaveDatePicker = ({
                 if (restrictFeatureDate && parsed.isAfter(today, "day")) return;
                 if (fromDate && parsed.isValid()) {
                     if (parsed.isBefore(fromDate, "day")) return;
-                
+
                     if (isRangeExceeded(fromDate, parsed)) return;
-                
+
                     setToDate(parsed.startOf("day"));
                 }
                 setCurrentMonth(parsed.month());
@@ -204,16 +199,16 @@ const LeaveDatePicker = ({
         setToText(formatted); // Update text only if allowed
     };
     const isConfirmDisabled =
-    maxDateSelect === 1
-        ? !(fromDate && fromDate.isValid())
-        : !(fromDate && toDate && fromDate.isValid() && toDate.isValid());
+        maxDateSelect === 1
+            ? !(fromDate && fromDate.isValid())
+            : !(fromDate && toDate && fromDate.isValid() && toDate.isValid());
 
-        const isRangeExceeded = (from, to) => {
-            if (!from || !to || !maxDateSelect || maxDateSelect <= 1) return false;
-        
-            const diff = to.diff(from, "day") + 1; // inclusive range
-            return diff > maxDateSelect;
-        };
+    const isRangeExceeded = (from, to) => {
+        if (!from || !to || !maxDateSelect || maxDateSelect <= 1) return false;
+
+        const diff = to.diff(from, "day") + 1; // inclusive range
+        return diff > maxDateSelect;
+    };
     const confirm = () => {
         if (maxDateSelect === 1) {
             if (!fromDate) {
@@ -249,16 +244,22 @@ const LeaveDatePicker = ({
         }
     };
 
-
-
     return (
         <Modal visible={visible} transparent animationType="fade">
             <View style={styles.overlay}>
-                <View style={styles.modal}>
+                <View style={[styles.modal, {
+                    borderWidth: wp(errors ? 0.5 : 0),
+                    borderColor: "red"
+                }]}>
                     <Text style={styles.title}>{title || "Select Date Range"}</Text>
-
-                    {/* Inputs */}
-
+                    {errors && (
+                        <Text style={{
+                            color: "red", marginVertical: wp(2),
+                            alignSelf: "center"
+                        }}>
+                            {errors}
+                        </Text>
+                    )}
                     <View style={styles.selectedDate}>
                         <TextInput
                             style={styles.dateInput}
@@ -291,50 +292,7 @@ const LeaveDatePicker = ({
                             </Pressable>
                         )}
                     </View>
-                    {/* <FlatList
-                        horizontal
-                        ref={monthListRef}
-                        data={MONTHS}
-                        keyExtractor={(item) => item}
-                        showsHorizontalScrollIndicator={false}
-                        renderItem={({ item, index }) => (
-                            <Pressable
-                                onPress={() => setCurrentMonth(index)}
-                                style={[styles.monthItem, index === currentMonth && styles.activeMonthItem]}
-                            >
-                                <Text style={[styles.monthText, index === currentMonth && styles.activeMonthText]}>
-                                    {item}
-                                </Text>
-                            </Pressable>
-                        )}
-                    />
-                    <FlatList
-                        horizontal
-                        ref={yearListRef}
-                        data={YEARS}
-                        keyExtractor={(item) => item.toString()}
-                        showsHorizontalScrollIndicator={false}
-                        getItemLayout={(_, index) => ({
-                            length: wp(20),
-                            offset: hp(7) * index,
-                            index,
-                        })}
-                        onScrollToIndexFailed={(info) => {
-                            setTimeout(() => {
-                                yearListRef.current?.scrollToIndex({ index: info.index, animated: true });
-                            }, 100);
-                        }}
-                        renderItem={({ item }) => (
-                            <Pressable
-                                onPress={() => setCurrentYear(item)}
-                                style={[styles.yearItem, item === currentYear && styles.activeYearItem]}
-                            >
-                                <Text style={[styles.yearText, item === currentYear && styles.activeYearText]}>
-                                    {item}
-                                </Text>
-                            </Pressable>
-                        )}
-                    /> */}
+
                     <View style={styles.monthHeader}>
                         <Pressable onPress={goToPreviousMonth}>
                             <Icon name="chevron-left" size={wp(7)} color={COLORS.primary} />

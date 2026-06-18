@@ -1,10 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 import { Audio } from "expo-av";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import {
     ActivityIndicator, Image, Modal, StyleSheet, Text,
-    TouchableOpacity,
-    View
+    TouchableOpacity, View
 } from "react-native";
 import { Camera, CameraType } from "react-native-camera-kit";
 import { COLORS } from "../../app/resources/colors";
@@ -26,6 +31,9 @@ export default function AttendanceLogin() {
     const [showSuccessCard, setShowSuccessCard] = useState(false);
     const countdownRef = useRef(null);
     const { showToast } = useToast();
+    const isFocused = useIsFocused();
+
+
     const playAudio = async (type = "success") => {
         try {
             const source =
@@ -40,7 +48,36 @@ export default function AttendanceLogin() {
             console.log("Audio Error:", error);
         }
     };
+    const stopAllProcesses = useCallback(() => {
+        if (countdownRef.current) {
+            clearInterval(countdownRef.current);
+            countdownRef.current = null;
+        }
+
+        attendanceLock.current = false;
+
+        setFaces([]);
+        setFaceDetected(false);
+        setCountdown(null);
+        setUploading(false);
+    }, []);
+    const resetAttendance = () => {
+        attendanceLock.current = false;
+        setAttendanceMarked(false);
+        setUploading(false);
+        setFaces([]);
+        setFaceDetected(false);
+        setCountdown(null);
+        setAttendanceData(null);
+        setShowSuccessCard(false);
+    };
+
     const startAttendanceProcess = useCallback(() => {
+
+        if (!isFocused) {
+            return;
+        }
+
         if (
             attendanceLock.current ||
             attendanceMarked ||
@@ -49,10 +86,22 @@ export default function AttendanceLogin() {
         ) {
             return;
         }
+
         let count = 3;
+
         setCountdown(count);
+
         countdownRef.current = setInterval(() => {
+
+            if (!isFocused) {
+                clearInterval(countdownRef.current);
+                countdownRef.current = null;
+                setCountdown(null);
+                return;
+            }
+
             count--;
+
             if (count > 0) {
                 setCountdown(count);
             } else {
@@ -62,7 +111,14 @@ export default function AttendanceLogin() {
                 captureAndUpload();
             }
         }, 1000);
-    }, [attendanceMarked, uploading]);
+
+    }, [
+        attendanceMarked,
+        uploading,
+        isFocused,
+    ]);
+
+
     useEffect(() => {
         const setupAudio = async () => {
             await Audio.setAudioModeAsync({
@@ -76,6 +132,9 @@ export default function AttendanceLogin() {
     }, []);
 
     const captureAndUpload = async () => {
+        if (!isFocused) {
+            return;
+        }
         if (
             attendanceLock.current ||
             attendanceMarked ||
@@ -129,7 +188,7 @@ export default function AttendanceLogin() {
             console.log("Attendance Response:", result);
             if (result?.success) {
                 await playAudio("success");
-                console.log("Attendance Result:", result);
+                // console.log("Attendance Result:", result);
                 setAttendanceMarked(true);
                 showToast?.(
                     result?.message ||
@@ -144,33 +203,12 @@ export default function AttendanceLogin() {
                     action: result.action,
                     confidence: result.confidence,
                 });
-
                 setShowSuccessCard(true);
-
                 setTimeout(() => {
-                    setShowSuccessCard(false);
-                    setAttendanceData(null);
+                    resetAttendance();
                 }, 2500);
 
             } else {
-                // 
-                // setAttendanceData({
-                //     name: 'result.employee?.name',
-                //     employeeId: 'result.employee?.employeeId',
-                //     photo: 'result.employee?.employeeImage',
-                //     message: 'result.message',
-                //     loginTime: 'result?.loginDate',
-                //     action: 'result.action',
-                //     confidence: 'result.confidence',
-                // });
-
-                // setShowSuccessCard(true);
-
-                // setTimeout(() => {
-                //     setShowSuccessCard(false);
-                //     setAttendanceData(null);
-                // }, 2500);
-                // 
                 await playAudio("failed");
                 attendanceLock.current = false;
                 showToast?.(
@@ -178,7 +216,6 @@ export default function AttendanceLogin() {
                     "Failed to mark attendance",
                     'error'
                 );
-
             }
         } catch (error) {
             await playAudio("failed");
@@ -192,13 +229,32 @@ export default function AttendanceLogin() {
         }
     };
 
+    useEffect(() => {
+        return () => {
+            if (countdownRef.current) {
+                clearInterval(countdownRef.current);
+            }
+        };
+    }, []);
+
 
     const onFaceDetected = useCallback(
         (event) => {
-            const detectedFaces = event?.nativeEvent?.faces || [];
+
+            if (!isFocused) {
+                return;
+            }
+
+            const detectedFaces =
+                event?.nativeEvent?.faces || [];
+
             setFaces(detectedFaces);
-            const hasFace = detectedFaces.length > 0;
+
+            const hasFace =
+                detectedFaces.length > 0;
+
             setFaceDetected(hasFace);
+
             if (
                 hasFace &&
                 !attendanceMarked &&
@@ -208,13 +264,26 @@ export default function AttendanceLogin() {
             ) {
                 startAttendanceProcess();
             }
-            if (!hasFace && countdownRef.current) {
-                clearInterval(countdownRef.current);
+
+            if (
+                !hasFace &&
+                countdownRef.current
+            ) {
+                clearInterval(
+                    countdownRef.current
+                );
+
                 countdownRef.current = null;
+
                 setCountdown(null);
             }
         },
-        [attendanceMarked, uploading, startAttendanceProcess]
+        [
+            isFocused,
+            attendanceMarked,
+            uploading,
+            startAttendanceProcess,
+        ]
     );
 
     return (
@@ -223,20 +292,25 @@ export default function AttendanceLogin() {
                 title="Attendance Login"
                 showBackButton={false}
             />
-            <Camera
-                ref={cameraRef}
-                cameraType={CameraType.Front}
-                style={styles.camera}
-                faceDetectionEnabled={true}
-                faceDetectionThrottleMs={500}
-                onFaceDetected={onFaceDetected}
-                onFaceDetectionInstallStatus={(event) => {
-                    console.log(
-                        "Face Detection Status:",
-                        event?.nativeEvent?.state
-                    );
-                }}
-            />
+            {
+                isFocused && (
+                    <Camera
+                        key={isFocused ? "focused" : "blurred"}
+                        ref={cameraRef}
+                        cameraType={CameraType.Front}
+                        style={styles.camera}
+                        faceDetectionEnabled={true}
+                        faceDetectionThrottleMs={500}
+                        onFaceDetected={onFaceDetected}
+                        onFaceDetectionInstallStatus={(event) => {
+                            console.log(
+                                "Face Detection Status:",
+                                event?.nativeEvent?.state
+                            );
+                        }}
+                    />
+                )
+            }
 
             <View style={styles.statusContainer}>
                 {countdown !== null ? (
@@ -324,9 +398,15 @@ export default function AttendanceLogin() {
 
                         <TouchableOpacity
                             style={styles.okButton}
-                            onPress={() =>
-                                setShowSuccessCard(false)
-                            }
+                            onPress={() => {
+                                setShowSuccessCard(false);
+                                setAttendanceData(null);
+                                setAttendanceMarked(false);
+                                attendanceLock.current = false;
+                                setFaces([]);
+                                setFaceDetected(false);
+                                setCountdown(null);
+                            }}
                         >
                             <Text style={styles.okButtonText}>
                                 OK

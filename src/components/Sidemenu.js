@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import Constants from "expo-constants";
+import * as Device from 'expo-device';
 import { t } from "i18next";
 import React, { useEffect, useState } from "react";
 import {
@@ -18,6 +19,7 @@ import ProfileCard from "./profileCard";
 import { setSidebarMenu } from "./store/store";
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
+
 
 export default function SideMenu({ visible, onClose, onItemPress }) {
     const [slideAnim] = useState(new Animated.Value(-SCREEN_WIDTH * 0.8));
@@ -59,7 +61,6 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
     const loadSideMenu = async () => {
         setLoadingMenu(true);
         const lang = await getStoredLanguage();
-
         try {
             const response = await fetchData("app-employee-sidebar-menu", "POST", {
                 user_id: profileDetails?.id,
@@ -116,7 +117,7 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
 
     };
     const confirmLogout = async () => {
-        const pseudoId = `${Device.brand}${Device.modelName}${userId}`;
+        const pseudoId = `${Device.brand}${Device.modelName}${profileDetails.id}`;
         try {
             const response = await fetchData(
                 "app-employee-logout",
@@ -127,7 +128,8 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
                 }
             );
             console.log(response,"response")
-            if (response?.success) {
+            // "text": "Success"
+            if (response?.text == 'Success') {
                 await AsyncStorage.clear();
                 navigation.reset({
                     index: 0,
@@ -135,7 +137,7 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
                 });
             }
         } catch (error) {
-            console.error("Notification API Error:", error);
+            console.error("logout API Error:", error);
         } finally {
             setLogoutModalVisible(false);
         }
@@ -154,18 +156,17 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
         if (key && key == "notification") {
             navigation.navigate('Notification');
         }
-        if (key && key == "our_stores") {
-            navigation.navigate('OurStoreScreen');
-        }
-        if (key && key == "terms_conditions") {
-            navigation.navigate('TermsScreen');
-        }
-        if (key && key == "privacy_policy") {
-            navigation.navigate('PrivacyPolicyScreen');
-        }
-        if (key && key == "settings") {
-            navigation.navigate('SettingsScreen');
-        }
+        // if (key && key == "our_stores") {
+        // }
+        // if (key && key == "terms_conditions") {
+        //     navigation.navigate('TermsScreen');
+        // }
+        // if (key && key == "privacy_policy") {
+        //     navigation.navigate('PrivacyPolicyScreen');
+        // }
+        // if (key && key == "settings") {
+        //     navigation.navigate('SettingsScreen');
+        // }
         if (key && key == "my_account") {
             navigation.navigate('My Account');
         }
@@ -240,7 +241,7 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
                                 <Icon name={'log-out-outline'} size={wp(5)} color={COLORS?.black} />
                             </TouchableOpacity>
                             <Text style={styles.footerText}>
-                                KAS ({Constants?.manifest?.version})
+                                V ({Constants?.manifest?.version})
                             </Text>
                         </View>
                     </Animated.View>

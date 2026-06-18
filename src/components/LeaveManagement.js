@@ -1,96 +1,140 @@
-
 import { useNavigation } from "@react-navigation/native";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+  ActivityIndicator, FlatList, Modal, Pressable, RefreshControl, StyleSheet, Text, TextInput,
+  View
 } from "react-native";
+import { useSelector } from "react-redux";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
+import { useToast } from "../../constants/ToastContext";
 import ApplyLeaveModal from "./ApplyLeaveModal";
 import CommonHeader from "./CommonHeader";
+import { fetchData } from "./api/Api";
 
 const statuses = ["All", "Pending", "Approved", "Rejected"];
-
-const initialLeaves = [
-  {
-    id: 1,
-    leaveType: "Casual Leave",
-    fromDate: "12 Jun 2026",
-    toDate: "14 Jun 2026",
-    days: 3,
-    status: "Approved",
-    reason: "Family Function",
-  },
-  {
-    id: 2,
-    leaveType: "Sick Leave",
-    fromDate: "20 Jun 2026",
-    toDate: "21 Jun 2026",
-    days: 2,
-    status: "Pending",
-    reason: "Fever",
-  },
-  {
-    id: 3,
-    leaveType: "Permission",
-    fromDate: "25 Jun 2026",
-    toDate: "25 Jun 2026",
-    days: 1,
-    status: "Rejected",
-    reason: "Personal Work",
-  },
-];
-
 const LeaveManagement = () => {
   const navigation = useNavigation();
-  const formatDate = (date) => {
-    return new Date(date).toDateString(); // or your custom format
-  };
+  const profileDetails = useSelector(
+    (state) => state?.auth?.profileDetails?.data
+  );
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  const [leaves, setLeaves] = useState(initialLeaves);
+  const [leaves, setLeaves] = useState([]);
 
-  // modal state moved out (still controlled here)
   const [modalVisible, setModalVisible] = useState(false);
-
-  // form state
   const [leaveType, setLeaveType] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [reason, setReason] = useState("");
+  const [leaveTypeArr, seleaveTypeArr] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    try {
+      return new Date(date).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    } catch {
+      return "-";
+    }
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
       case "Approved":
         return "#16A34A";
+
       case "Rejected":
         return "#DC2626";
+
       case "Pending":
         return "#F59E0B";
+
       default:
         return "#6B7280";
     }
   };
+  const { showToast } = useToast();
+
+  const getMyLeaves = async () => {
+    try {
+      setLoading(true);
+      setRefreshing(true);
+
+      const response = await fetchData(
+        "get-leave-summary",
+        "POST",
+        {
+          employeeId: profileDetails?._id,
+          companyId: profileDetails?.companyId,
+        }
+      );
+      if (response?.success) {
+        seleaveTypeArr(response?.leaveTypes);
+        const formattedLeaves =
+          response?.appliedLeaves?.map((item) => ({
+            id: item?._id || Date.now(),
+            leaveType:
+              item?.leaveType ||
+              item?.leaveCategory ||
+              "Leave",
+
+            fromDate: formatDate(item?.startDate),
+            toDate: formatDate(item?.endDate),
+
+            days:
+              item?.days ||
+              item?.numberOfDays ||
+              1,
+
+            status: item?.status || "Pending",
+
+            reason: item?.reason || "-",
+          })) || [];
+
+        setLeaves(formattedLeaves);
+      } else {
+        setLeaves([]);
+      }
+    } catch (error) {
+      console.log("Leave API Error:", error);
+      setLeaves([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+  useEffect(() => {
+    if (profileDetails?._id) {
+      getMyLeaves();
+    }
+  }, [profileDetails]);
 
   const filteredLeaves = useMemo(() => {
     return leaves.filter((item) => {
-      const matchStatus =
-        selectedStatus === "All" || item.status === selectedStatus;
+      const matchesStatus =
+        selectedStatus === "All" ||
+        item?.status === selectedStatus;
 
-      const matchSearch =
-        item.leaveType.toLowerCase().includes(search.toLowerCase()) ||
-        item.reason.toLowerCase().includes(search.toLowerCase());
+      const searchText = search.toLowerCase();
 
-      return matchStatus && matchSearch;
+      const matchesSearch =
+        item?.leaveType
+          ?.toLowerCase()
+          ?.includes(searchText) ||
+        item?.reason
+          ?.toLowerCase()
+          ?.includes(searchText);
+
+      return matchesStatus && matchesSearch;
     });
-  }, [selectedStatus, search, leaves]);
+  }, [leaves, selectedStatus, search]);
 
   const statusCounts = useMemo(() => {
     const counts = {
@@ -101,64 +145,113 @@ const LeaveManagement = () => {
     };
 
     leaves.forEach((item) => {
-      counts[item.status] += 1;
+      if (counts[item.status] !== undefined) {
+        counts[item.status] += 1;
+      }
     });
 
     return counts;
   }, [leaves]);
 
   const onRefresh = () => {
-    setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
+    getMyLeaves();
   };
 
-  const applyLeave = () => {
-    if (!leaveType?.trim()) return;
-    if (!fromDate) return;
-    if (!toDate) return;
-  
-    const newLeave = {
-      id: Date.now(),
-      leaveType: leaveType.trim(),
-      fromDate: String(fromDate),
-      toDate: String(toDate),
-      days: 1,
-      status: "Pending",
-      reason,
-    };
-  
-    setLeaves((prev) => [newLeave, ...prev]);
-  
-    setLeaveType("");
-    setFromDate("");
-    setToDate("");
-    setReason("");
-    setModalVisible(false);
+  const applyLeave = async () => {
+    try {
+      if (!leaveType?.label) {
+        alert("Please select leave type");
+        return;
+      }
+
+      if (!fromDate) {
+        alert("Please select start date");
+        return;
+      }
+
+      if (!toDate) {
+        alert("Please select end date");
+        return;
+      }
+
+      setLoading(true);
+
+      const payload = {
+        employeeId: profileDetails?._id,
+        companyId: profileDetails?.companyId,
+        leaveType: leaveType?.label,
+        startDate: fromDate,
+        endDate: toDate,
+        reason: reason?.trim() || "",
+      };
+
+      const response = await fetchData(
+        "add-leave",
+        "POST",
+        payload
+      );
+
+      if (response?.success) {
+        showToast(response?.message, "success");
+
+        await getMyLeaves();
+        setLeaveType("");
+        setFromDate("");
+        setToDate("");
+        setReason("");
+
+        setModalVisible(false);
+      } else {
+        showToast(response?.message, "error");
+      }
+    } catch (error) {
+      console.log("Add Leave Error:", error);
+      showToast("Something went wrong", "error");
+    } finally {
+      setLoading(false);
+    }
   };
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.leaveType}>{item.leaveType}</Text>
+        <Text style={styles.leaveType}>
+          {item.leaveType}
+        </Text>
 
         <Text style={styles.dateText}>
           📅 {item.fromDate} - {item.toDate}
         </Text>
 
-        <Text style={styles.daysText}>🗓️ {item.days} Day(s)</Text>
+        <Text style={styles.daysText}>
+          🗓️ {item.days} Day(s)
+        </Text>
 
-        <Text style={styles.reasonText}>{item.reason}</Text>
+        <Text style={styles.reasonText}>
+          {item.reason}
+        </Text>
+        {
+          item?.approvalReason != '' &&
+
+          <Text style={styles.reasonText}>
+            {item?.approvalReason}
+          </Text>
+        }
       </View>
-
       <View
         style={[
           styles.statusBadge,
-          { backgroundColor: getStatusColor(item.status) + "20" },
+          {
+            backgroundColor:
+              getStatusColor(item.status) + "20",
+          },
         ]}
       >
         <Text
           style={[
             styles.statusText,
-            { color: getStatusColor(item.status) },
+            {
+              color: getStatusColor(item.status),
+            },
           ]}
         >
           {item.status}
@@ -166,7 +259,6 @@ const LeaveManagement = () => {
       </View>
     </View>
   );
-
   return (
     <View style={styles.container}>
       <CommonHeader
@@ -187,16 +279,20 @@ const LeaveManagement = () => {
         {statuses.map((status) => (
           <Pressable
             key={status}
-            onPress={() => setSelectedStatus(status)}
+            onPress={() =>
+              setSelectedStatus(status)
+            }
             style={[
               styles.tab,
-              selectedStatus === status && styles.activeTab,
+              selectedStatus === status &&
+              styles.activeTab,
             ]}
           >
             <Text
               style={[
                 styles.tabText,
-                selectedStatus === status && styles.activeTabText,
+                selectedStatus === status &&
+                styles.activeTabText,
               ]}
             >
               {status} ({statusCounts[status]})
@@ -207,13 +303,17 @@ const LeaveManagement = () => {
 
       <FlatList
         data={filteredLeaves}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) =>
+          item.id.toString()
+        }
         renderItem={renderItem}
         contentContainerStyle={{
           padding: wp(4),
           paddingBottom: hp(12),
         }}
-        ItemSeparatorComponent={() => <View style={{ height: hp(1) }} />}
+        ItemSeparatorComponent={() => (
+          <View style={{ height: hp(1) }} />
+        )}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -222,20 +322,41 @@ const LeaveManagement = () => {
           />
         }
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No Leave Requests Found</Text>
+          <Text style={styles.emptyText}>
+            No Leave Requests Found
+          </Text>
         }
       />
 
       <Pressable
         style={styles.applyButton}
-        onPress={() => setModalVisible(true)}
+        onPress={() =>
+          setModalVisible(true)
+        }
       >
-        <Text style={styles.applyButtonText}>+ Apply Leave</Text>
+        <Text style={styles.applyButtonText}>
+          + Apply Leave
+        </Text>
       </Pressable>
+      <Modal transparent visible={loading}>
+        <View style={styles.loaderContainer}>
+          <View style={styles.loaderBox}>
+            <ActivityIndicator
+              size="large"
+              color={COLORS.primary}
+            />
+            <Text style={styles.loaderText}>
+              Applying Leave...
+            </Text>
+          </View>
+        </View>
+      </Modal>
 
       <ApplyLeaveModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={() =>
+          setModalVisible(false)
+        }
         onSubmit={applyLeave}
         leaveType={leaveType}
         setLeaveType={setLeaveType}
@@ -246,6 +367,7 @@ const LeaveManagement = () => {
         reason={reason}
         setReason={setReason}
         formatDate={formatDate}
+        leaveTypeArr={leaveTypeArr}
       />
     </View>
   );
@@ -253,12 +375,32 @@ const LeaveManagement = () => {
 
 export default LeaveManagement;
 
+// KEEP YOUR EXISTING styles OBJECT BELOW THIS LINE
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F8FAFC",
   },
+  loaderContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
+  loaderBox: {
+    backgroundColor: "#FFF",
+    paddingVertical: hp(3),
+    paddingHorizontal: wp(8),
+    borderRadius: wp(3),
+    alignItems: "center",
+  },
+
+  loaderText: {
+    marginTop: hp(1),
+    fontSize: wp(3.5),
+    color: "#333",
+  },
   searchBar: {
     margin: wp(4),
     backgroundColor: "#FFF",

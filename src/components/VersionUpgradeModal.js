@@ -17,7 +17,7 @@ export default function VersionUpgradeModal() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    // checkVersion();
+    checkVersion();
   }, []);
 
   const checkVersion = async () => {
