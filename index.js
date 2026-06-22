@@ -1,9 +1,9 @@
-import messaging from '@react-native-firebase/messaging';
+// import messaging from '@react-native-firebase/messaging';
 import { registerRootComponent } from 'expo';
 import * as Notifications from 'expo-notifications';
 import { Alert, Linking, Platform } from 'react-native';
 import {
-    scheduleReminder,
+  scheduleReminder,
 } from 'react-native-reminder-notifier';
 import App from './App';
 
@@ -87,13 +87,13 @@ async function handleMessage(remoteMessage) {
   await showNotification(remoteMessage, created);
 }
 
-// 📩 Foreground
-messaging().onMessage(handleMessage);
+// // 📩 Foreground
+// messaging().onMessage(handleMessage);
 
-// 📩 Background / killed
-messaging().setBackgroundMessageHandler(async remoteMessage => {
-  await handleMessage(remoteMessage);
-});
+// // 📩 Background / killed
+// messaging().setBackgroundMessageHandler(async remoteMessage => {
+//   await handleMessage(remoteMessage);
+// });
 
 // 📅 Open calendar
 async function openCalendarApp() {

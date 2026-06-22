@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Yuvaraj Scaffolding Traders",
+    "name": "Yuvaraj Connect",
     "slug": "yuvarajscaffoldingtraders",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,15 +14,20 @@
       "keyAlias": "kasemployee",
       "keyPassword": "kasemployee"
     },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "kasemployee",
-      "infoPlist": {
-        "NSCameraUsageDescription": "This app needs camera access to take photos",
-        "NSPhotoLibraryUsageDescription": "This app needs photo library access to upload images",
-        "NSMicrophoneUsageDescription": "This app needs microphone access to record audio"
-      }
-    },
+   "ios": {
+  "supportsTablet": true,
+  "bundleIdentifier": "yuvarajscaffoldingtraders",
+  "googleServicesFile": "./GoogleService-Info.plist",
+  "config": {
+    "googleMapsApiKey": "AIzaSyD3aWLyn9qHavlshIy49b1Pi9jjKjIPMnc"
+  },
+  "infoPlist": {
+    "NSCameraUsageDescription": "This app needs camera access to take photos",
+    "NSPhotoLibraryUsageDescription": "This app needs photo library access to upload images",
+    "NSMicrophoneUsageDescription": "This app needs microphone access to record audio",
+    "locationWhenInUsePermission": "We use your location to check your login location."
+  }
+},
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -37,8 +42,8 @@
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",
-        "READ_CALENDAR",
-        "WRITE_CALENDAR"
+        "ACCESS_FINE_LOCATION",
+      "ACCESS_COARSE_LOCATION"
       ]
     },
     "web": {
@@ -46,7 +51,7 @@
       "favicon": "./assets/images/yuvIcon.png"
     },
     "plugins": [
-      "expo-router",
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef } from "react";
 import {
-  Animated, Image, Modal, PanResponder, SafeAreaView, StyleSheet, TouchableOpacity,
-  View,
+  Animated,
+  Modal, PanResponder, SafeAreaView, StyleSheet, TouchableOpacity,
+  View
 } from "react-native";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
@@ -98,6 +99,10 @@ export default function ImageViewerModal({ visible, uri, onClose }) {
 
   if (!uri) return null;
 
+  const handleColose = () => {
+    onClose()
+  }
+
   return (
     <Modal visible={visible} transparent animationType="none">
       <SafeAreaView style={styles.safeArea}>
@@ -109,26 +114,38 @@ export default function ImageViewerModal({ visible, uri, onClose }) {
             onPress={onClose}
           />
 
-          <Animated.View
-            style={[
-              styles.container,
-              {
-                transform: [{ translateX }, { translateY }, { scale }],
-              },
-            ]}
-            {...panResponder.panHandlers}
-          >
-            {/* Close Button */}
-            <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-              <Ionicons name="close" size={30} color={COLORS?.primary} />
+
+          <View style={styles.container}>
+            <TouchableOpacity
+              style={styles.closeBtn}
+              onPress={() => {
+                console.log("Close pressed");
+                onClose?.();
+              }}
+            >
+              <Ionicons
+                name="close"
+                size={30}
+                color={COLORS?.primary}
+              />
             </TouchableOpacity>
 
-            <Image
+            <Animated.Image
               source={{ uri }}
-              style={styles.image}
               resizeMode="contain"
+              style={[
+                styles.image,
+                {
+                  transform: [
+                    { translateX },
+                    { translateY },
+                    { scale },
+                  ],
+                },
+              ]}
+              {...panResponder.panHandlers}
             />
-          </Animated.View>
+          </View>
         </View>
       </SafeAreaView>
     </Modal>

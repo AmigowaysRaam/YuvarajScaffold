@@ -2,10 +2,10 @@ import { useNavigation } from "@react-navigation/native";
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  FlatList, Pressable, RefreshControl,
-  StyleSheet, Text, View
+  FlatList, Pressable, RefreshControl, StyleSheet, Text, View
 } from "react-native";
 import { Icon } from "react-native-elements";
+import { useSelector } from "react-redux";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
 import AttendanceDetailsLog from "./AttendanceDetailsLog";
@@ -13,11 +13,14 @@ import AttendanceRow from "./AttendanceRow";
 import AttendTableHeader from "./AttendanceTblHead";
 import CommonHeader from "./CommonHeader";
 import CustomDropdownData from "./CustomDropDownwihtUI";
-
+import { fetchData } from "./api/Api";
 export default function AttendanceLog({ route }) {
-
   const navigation = useNavigation();
-  const { hData } = route?.params;
+  const [summaryData, setSummaryData] = useState({
+    total_days: 0, present_days: 0, absent_days: 0, late_days: 0,
+    working_hours: "00:00",
+  });
+  const [attendanceDetails, setAttendanceDetails] = useState({});
   const [refreshing, setRefreshing] = useState(false);
   const [loginData, setLoginData] = useState([]);
   const [scrollY, setScrollY] = useState(0);
@@ -25,48 +28,84 @@ export default function AttendanceLog({ route }) {
   const [yearDropdownVisible, setYearDropdownVisible] = useState(false);
   const [monthDropdownVisible, setMonthDropdownVisible] = useState(false);
   const [selectedYear, setSelectedYear] = useState(dayjs().year());
-  const [selectedMonth, setSelectedMonth] = useState(dayjs().month() + 1); // 1-12
-
+  const [selectedMonth, setSelectedMonth] = useState(dayjs().month() + 1);
   const flatListRef = useRef();
-  useEffect(() => loadAttendance(), [selectedYear, selectedMonth]);
-  const loadAttendance = () => {
-    const dummyData = [];
-    const daysInMonth = dayjs(`${selectedYear}-${selectedMonth}-01`).daysInMonth();
+  const profileDetails = useSelector(
+    (state) => state?.auth?.profileDetails?.data
+  );
+  useEffect(() => {
+    loadAttendance();
+  }, [selectedMonth, selectedYear]);
+  const loadAttendance = async () => {
+    try {
+      setRefreshing(true);
 
-    for (let i = 0; i < daysInMonth; i++) {
-      const date = dayjs(`${selectedYear}-${selectedMonth}-01`).date(i + 1);
-      const formattedDate = date.format("YYYY-MM-DD");
-
-      const statuses = ["Present", "Late", "Absent"];
-      const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-
-      const details = {
-        login_time: "09:00 AM",
-        logout_time: "06:00 PM",
-        morning_tea_break: "00:00",
-        lunch_break: "00:00",
-        evening_tea_break: "00:00",
-        today_working_hour: "08:00",
-      };
-
-      if (randomStatus === "Late") {
-        details.login_time = "09:45 AM";
-        details.logout_time = "06:05 PM";
-      } else if (randomStatus === "Absent") {
-        Object.keys(details).forEach((k) => (details[k] = "--"));
+      const response = await fetchData(
+        "employee-attendance-log",
+        "POST",
+        {
+          employee_id: profileDetails?.id,
+          month: selectedMonth,
+          year: selectedYear,
+        }
+      );
+      // console.log("API Response", JSON.stringify(response));
+      if (response?.success) {
+        const attendanceData =
+          response?.attendance?.map((item) => ({
+            id: item.id,
+            date: item.date,
+            status: item.status,
+            login: item.login,
+            logout: item.logout,
+            details: {
+              login_time: item?.details?.login_time || "--",
+              logout_time: item?.details?.logout_time || "--",
+              morning_tea_break:
+                item?.details?.morning_tea_break || "--",
+              lunch_break:
+                item?.details?.lunch_break || "--",
+              evening_tea_break:
+                item?.details?.evening_tea_break || "--",
+              today_working_hour:
+                item?.details?.today_working_hour || "--",
+            },
+          })) || [];
+        setLoginData(attendanceData);
+        setAttendanceDetails(
+          response?.attendance?.[response?.attendance?.length - 1]?.details || {}
+        );
+        setSummaryData({
+          total_days: response?.summary?.total_days || 0,
+          present_days: response?.summary?.present_days || 0,
+          absent_days: response?.summary?.absent_days || 0,
+          late_days: response?.summary?.late_days || 0,
+          working_hours:
+            response?.summary?.working_hours || "00:00",
+        });
+      } else {
+        setLoginData([]);
+        setSummaryData({
+          total_days: 0,
+          present_days: 0,
+          absent_days: 0,
+          late_days: 0,
+          working_hours: "00:00",
+        });
       }
-
-      dummyData.push({
-        id: i + 1,
-        date: formattedDate,
-        login: details.login_time,
-        logout: details.logout_time,
-        status: randomStatus,
-        details,
+    } catch (error) {
+      console.error("Attendance API Error:", error);
+      setLoginData([]);
+      setSummaryData({
+        total_days: 0,
+        present_days: 0,
+        absent_days: 0,
+        late_days: 0,
+        working_hours: "00:00",
       });
+    } finally {
+      setRefreshing(false);
     }
-    setLoginData(dummyData);
-    setRefreshing(false);
   };
 
   const onRefresh = () => {
@@ -87,7 +126,6 @@ export default function AttendanceLog({ route }) {
       });
     }
   };
-  // Dropdown options
   const yearOptions = Array.from({ length: 10 }, (_, i) => {
     const y = dayjs().year() - i;
     return { label: y.toString(), value: y };
@@ -107,7 +145,10 @@ export default function AttendanceLog({ route }) {
       <FlatList
         ref={flatListRef}
         data={loginData}
-        keyExtractor={(item) => item.id.toString()}
+        // keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) =>
+          item?.id?.toString() || index.toString()
+        }
         renderItem={({ item }) => (
           <AttendanceRow
             item={item}
@@ -147,53 +188,35 @@ export default function AttendanceLog({ route }) {
                   onSelect={(item) => {
                     setSelectedYear(item.value);
                     setYearDropdownVisible(false);
+                    const currentMonth = dayjs().month() + 1;
+                    setSelectedMonth(currentMonth);
                   }}
                 />
               </View>
-
               <View style={{ flex: 1, marginLeft: wp(1) }}>
                 <Pressable
                   style={[styles.dateToggle, {
-                    backgroundColor: COLORS?.white,
                     borderWidth: wp(0.4), borderColor:
                       COLORS?.primary
                   }]}
                   onPress={() => setMonthDropdownVisible(!monthDropdownVisible)}
                 >
-                  <Text style={[styles.dateToggleText, {
-                    color: COLORS?.primary
-                  }]}>
-                    {'Download'}
+                  <Text style={styles.dateToggleText}>
+                    {monthOptions.find(m => m.value === selectedMonth)?.label || "Month"}
                   </Text>
-                  <Icon
-                    name={'download'}
-                    size={wp(5)}
-                    color={COLORS?.primary}
+                  <Icon type="feather" name={monthDropdownVisible ? "arrow-drop-up" : "calendar"}
+                    size={wp(5)} color="#fff"
                   />
                 </Pressable>
               </View>
             </View>
-            <AttendanceDetailsLog homepageData={hData} />
+            <AttendanceDetailsLog homepageData={summaryData}
+              attendanceDetails={attendanceDetails}
+            />
             <View style={{ marginLeft: wp(4) }}>
-              <Pressable
-                style={[styles.dateToggle, {
-                  width: "45%",
-                }]}
-                onPress={() => setMonthDropdownVisible(!monthDropdownVisible)}
-              >
-                <Text style={styles.dateToggleText}>
-                  {monthOptions.find(m => m.value === selectedMonth)?.label || "Month"}
-                </Text>
-                <Icon
-                  type="feather"
-                  name={monthDropdownVisible ? "arrow-drop-up" : "calendar"}
-                  size={wp(5)}
-                  color="#fff"
-                />
-              </Pressable>
               <CustomDropdownData
                 title={'Choose Month'}
-                isVisible={monthDropdownVisible}       // <- Control visibility
+                isVisible={monthDropdownVisible}
                 onClose={() => setMonthDropdownVisible(false)}
                 data={monthOptions}
                 selectedItem={{ value: selectedMonth }}
@@ -216,17 +239,12 @@ const styles = StyleSheet.create({
   dateToggle: {
     paddingVertical: wp(2),
     marginBottom: wp(2),
-    backgroundColor: COLORS.primary,
-    borderRadius: wp(20),
-    width: "100%",
-    alignItems: "center",
+    backgroundColor: COLORS.primary, borderRadius: wp(2),
+    width: "100%", alignItems: "center",
     flexDirection: "row",
-    justifyContent: "space-around",
-    paddingHorizontal: wp(4),
-  },
-  dateToggleText: {
+    justifyContent: "space-around", paddingHorizontal: wp(4),
+  }, dateToggleText: {
     fontSize: wp(3.8),
-    color: "#fff",
-    fontFamily: "Poppins_600SemiBold", lineHeight: hp(3)
+    color: "#fff", fontFamily: "Poppins_600SemiBold", lineHeight: hp(3)
   },
 });

@@ -1,19 +1,19 @@
-<!-- <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyCQmiR3fB-0gOk-v8plAyV4MFxwgbNC6Tg</string>
+	<string>AIzaSyBvbxgRpDQiVIXNgrRhTwczefg1BwPqKTg</string>
 	<key>GCM_SENDER_ID</key>
-	<string>189533086770</string>
+	<string>382702972047</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>kasemployee</string>
+	<string>yuvarajscaffoldingtraders</string>
 	<key>PROJECT_ID</key>
-	<string>kasemployee</string>
+	<string>yuvarajscaffoldingtrader-e2bfb</string>
 	<key>STORAGE_BUCKET</key>
-	<string>kasemployee.firebasestorage.app</string>
+	<string>yuvarajscaffoldingtrader-e2bfb.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:189533086770:ios:5b897beea531cbc661882b</string>
+	<string>1:382702972047:ios:1fee33eb5309589a7694fa</string>
 </dict>
-</plist> -->
+</plist>

@@ -26,11 +26,18 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import { COLORS } from "./app/resources/colors";
-import { hp } from "./app/resources/dimensions";
 import { ToastProvider } from "./constants/ToastContext";
 import NoInternetScreen from "./NoInternetScreen";
 import StackNavi from "./src/components/navigation/StackNavi";
 import { store } from "./src/components/store/store";
+
+
+import { Dimensions } from "react-native";
+
+const { width, height } = Dimensions.get("window");
+
+
+
 export const navigationRef = createNavigationContainerRef();
 export function navigate(name, params) {
   if (navigationRef.isReady()) {
@@ -156,103 +163,137 @@ console.log("Notification tapped with data:", data);
 
   return (
     <Provider store={store}>
-      <SafeAreaView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#fff' :  '#fff', }}>
-        <StatusBar
-          barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
-          backgroundColor={colorScheme === 'dark' ? '#000' : '#fff'}
-        />
-        {!isConnected ? (
-          <NoInternetScreen
-            onRetry={() => {
-              NetInfo.fetch().then(state => {
-                setIsConnected(state.isConnected);
-              });
-            }}
-          />
-        ) : (
-          <ToastProvider>
-            <NavigationContainer ref={navigationRef}>
-              <StackNavi />
-            </NavigationContainer>
-          </ToastProvider>
-        )}
-        {/* 🔔 Minimal Version Modal */}
-        <Modal transparent visible={visible} animationType="fade">
-          <View style={styles.overlay}>
-            <View style={styles.modal}>
-              <Text style={styles.title}>New Version Available</Text>
-              <Text style={styles.text}>Latest: {latestVersion}</Text>
-              <TouchableOpacity style={styles.button} onPress={goToStore}>
-                <Text style={styles.buttonText}>Update Now</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+  <SafeAreaView style={styles.container}>
+    <StatusBar
+      translucent={false}
+      backgroundColor="#fff"
+      barStyle="dark-content"
+    />
 
-      </SafeAreaView>
-    </Provider>
+    {!isConnected ? (
+      <NoInternetScreen
+        onRetry={() => {
+          NetInfo.fetch().then(state => {
+            setIsConnected(state.isConnected);
+          });
+        }}
+      />
+    ) : (
+      <ToastProvider>
+        <NavigationContainer ref={navigationRef}>
+          <StackNavi />
+        </NavigationContainer>
+      </ToastProvider>
+    )}
+
+    <Modal transparent visible={visible} animationType="fade">
+      <View style={styles.overlay}>
+        <View style={styles.modal}>
+          <Text style={styles.title}>New Version Available</Text>
+
+          <Text style={styles.text}>
+            Latest Version: {latestVersion}
+          </Text>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={goToStore}
+          >
+            <Text style={styles.buttonText}>
+              Update Now
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  </SafeAreaView>
+</Provider>
   );
 }
 /* 🔑 REGISTER FOR EXPO PUSH */
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: width,
+    height: height,
+    backgroundColor: "#fff",
+  },
+
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: COLORS?.primary,
-    padding: 20,
+    backgroundColor: COLORS.primary,
+    padding: width * 0.05,
   },
+
   box: {
-    width: "100%",
-    maxWidth: 320,
-    padding: hp(5),
+    width: width * 0.9,
+    maxWidth: 400,
+    padding: width * 0.05,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#FF4D4D",
     backgroundColor: "#FFF1F1",
     alignItems: "center",
   },
+
   title: {
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 16,
+    fontSize: width * 0.045,
     color: "#D8000C",
     textAlign: "center",
   },
+
   subtitle: {
     fontFamily: "Poppins_400Regular",
-    fontSize: 13,
+    fontSize: width * 0.035,
     color: "#333",
     textAlign: "center",
   },
+
   overlay: {
     flex: 1,
+    width: width,
+    height: height,
     backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: width * 0.05,
   },
+
   modal: {
-    width: "80%",
+    width: width * 0.85,
+    maxWidth: 420,
     backgroundColor: "#fff",
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
     borderRadius: 12,
     alignItems: "center",
   },
+
   text: {
     fontFamily: "Poppins_400Regular",
-    fontSize: 14,
-    marginVertical: 2,
+    fontSize: width * 0.038,
+    marginVertical: 4,
     color: "#333",
+    textAlign: "center",
   },
+
   button: {
     marginTop: 15,
+    width: "100%",
+    height: 50,
     backgroundColor: COLORS.primary,
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderRadius: 5,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
+
   buttonText: {
     fontFamily: "Poppins_500Medium",
     color: "#fff",
-    fontSize: 16,
+    fontSize: width * 0.04,
   },
 });
