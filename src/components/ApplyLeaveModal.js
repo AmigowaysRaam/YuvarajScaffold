@@ -1,21 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
-    Keyboard,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+    Keyboard, KeyboardAvoidingView, Modal, Platform,
+    Pressable, SafeAreaView, StyleSheet, Text, TextInput, View,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
-
 import CustomDropdownData from "./CustomDropDownwihtUI";
 import LeaveDatePicker from "./LeaveDatePicker";
 

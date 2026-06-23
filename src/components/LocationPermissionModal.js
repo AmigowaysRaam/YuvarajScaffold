@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Linking,
   Modal,
@@ -10,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
 export default function LocationPermissionModal({
   onLocationReceived,
 }) {
@@ -50,10 +50,14 @@ export default function LocationPermissionModal({
       setVisible(true);
     }
   };
-
-  useEffect(() => {
-    requestPermission();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      requestPermission();
+      return () => {
+        // cleanup if needed
+      };
+    }, [])
+  );
 
   return (
     <Modal visible={visible} transparent animationType="fade">

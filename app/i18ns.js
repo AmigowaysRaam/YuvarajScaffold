@@ -28,7 +28,7 @@ export const loadTranslationsFromAPI = async (lang = "en") => {
     i18n.changeLanguage(lang);
     // ✅ Store the language code locally
     await AsyncStorage.setItem("user-language", lang);
-    console.log("Translations loaded:", translations);
+    // console.log("Translations loaded:", translations);
   } catch (error) {
     console.error("Failed to load translations from API:", error);
   }

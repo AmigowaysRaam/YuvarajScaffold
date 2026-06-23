@@ -292,6 +292,7 @@ export default function AttendanceLogin() {
                 title="Attendance Login"
                 showBackButton={false}
             />
+            {/* <Text>{JSON.stringify(location)}</Text> */}
             {
                 isFocused && (
                     <Camera
@@ -415,7 +416,6 @@ export default function AttendanceLogin() {
                     </View>
                 </View>
             </Modal>
-
 
             <LocationPermissionModal
                 onLocationReceived={(coords) => {

@@ -1,4 +1,5 @@
 import { createStackNavigator } from '@react-navigation/stack';
+import AllMeetings from '../AllMeetings';
 import AssignTaskListScreen from '../AssignTaskListScreen';
 import Attendance from '../Attendance';
 import AttendanceActivity from '../AttendanceActivity';
@@ -13,6 +14,7 @@ import LeadListScreen from '../LeadListScreen';
 import LeaveManagement from '../LeaveManagement';
 import Login from '../Login';
 import MaintainancePage from '../MaintainancePage';
+import MeetingDetailsScreen from '../MeetingDetailsScreen';
 import MeetingTimeLine from '../MeetingTimeLine';
 import MobileLogin from '../MobileLogin';
 import MpinLoginScreen from '../MpinLoginScreen';
@@ -73,7 +75,8 @@ export default function StackNavi() {
       <Stack.Screen name='LeadDetailtScreen' component={LeadDetailtScreen} />
       <Stack.Screen name='TodayMeetingsLIsts' component={TodayMeetingsLIsts} />
       <Stack.Screen name='MeetingTimeLine' component={MeetingTimeLine} />
-
+      <Stack.Screen name='MeetingDetailsScreen' component={MeetingDetailsScreen} />
+      <Stack.Screen name='AllMeetings' component={AllMeetings} />
       <Stack.Screen
         name="LeadListScreen"
         component={LeadListScreen}

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Yuvaraj Scaffolding Traders",
     "slug": "yuvarajscaffoldingtraders",
-    "version": "1.0.1",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/yuvIcon.png",
     "scheme": "yuvarajscaffoldingtraders",

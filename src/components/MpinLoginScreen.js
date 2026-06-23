@@ -133,7 +133,6 @@ export default function MpinLoginScreen() {
       setLoading(false);
     }
   };
-  
   const isButtonDisabled = mpin.length !== 4 || loading;
   useEffect(() => {
     if (mpin.length < 4) {

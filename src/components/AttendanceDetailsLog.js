@@ -136,9 +136,8 @@ const AttendanceDetailsLog = ({ homepageData, attendanceDetails }) => {
       <Text style={[styles.dateText, {
         alignSelf: "center", borderWidth: wp(0.3), padding: wp(1), borderRadius: wp(4), borderColor: COLORS?.primary, paddingHorizontal: wp(4), lineHeight: wp(5.5)
       }]}>
-        {`${t("Tuesday")} : ${formattedDate}`}
+        {`${formattedDate}`}
       </Text>
-      {/* GRID CARDS */}
       <View style={styles.grid}>
         {keys.map((key, index) =>
           renderCard(key, todayData[key], animations[index])

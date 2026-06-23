@@ -250,20 +250,17 @@ export default function AttendanceActivity() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F4F6FA",
   },
-
   stickyHeader: {
     backgroundColor: "#F4F6FA",
     paddingHorizontal: wp(4),
     paddingTop: hp(1),
     zIndex: 100,
   },
-
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",

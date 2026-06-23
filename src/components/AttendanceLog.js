@@ -2,8 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  FlatList, Pressable, RefreshControl,
-  StyleSheet, Text, View
+  FlatList, Pressable, RefreshControl, StyleSheet, Text, View
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { useSelector } from "react-redux";
@@ -162,6 +161,15 @@ export default function AttendanceLog({ route }) {
         onScroll={handleScroll}
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: hp(3), paddingTop: hp(1) }}
+        ListEmptyComponent={
+          <>
+            <Text style={{
+              alignSelf: "center", justifyContent: "center", marginTop: hp(4),
+              fontFamily: "Poppins_600SemiBold"
+            }}>
+              No data
+            </Text></>
+        }
         ListHeaderComponent={
           <>
             <View style={{ flexDirection: "row", paddingHorizontal: wp(3), justifyContent: "space-between", marginBottom: hp(2) }}>

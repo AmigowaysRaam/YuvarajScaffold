@@ -142,7 +142,7 @@ export default function SplashScreen() {
             return;
           }
           dispatch(setSiteDetails(siteDetailsData));
-          // console.log("siteDetailsData Response:", siteDetailsData);
+          console.log("siteDetailsData Response:", siteDetailsData);
           const userDataString =
             await AsyncStorage.getItem("USER_DATA");
           const userData = JSON.parse(userDataString);

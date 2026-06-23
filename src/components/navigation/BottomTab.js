@@ -81,7 +81,9 @@ function CustomTabBar({ state, navigation, menus }) {
   }, [state.index, tabWidth]);
 
   return (
-    <ImageBackground style={styles.tabBar} resizeMode="cover">
+    <ImageBackground 
+        // source={require("../../../assets/cardBg.png")}
+    style={styles.tabBar} resizeMode="cover">
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
 

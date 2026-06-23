@@ -47,9 +47,6 @@ export default function MobileLogin() {
       const mobileLData = await fetchData('app-employee-login', 'POST', {
         phone_number: phone
       });
-      // Alert.alert("", JSON.stringify(mobileLData))
-    console.log("MOBIKLE", JSON.stringify(mobileLData))
-
       if (mobileLData?.text === "Success") {
         showToast(mobileLData?.message, "success");
         navigation.replace("OtpVerfication", mobileLData);

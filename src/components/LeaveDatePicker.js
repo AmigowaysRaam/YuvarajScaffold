@@ -1,60 +1,38 @@
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-    Alert, Modal, Pressable, StyleSheet, Text, TextInput, View
-} from "react-native";
+import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { COLORS } from "../../app/resources/colors";
 import { hp, wp } from "../../app/resources/dimensions";
 import { useToast } from "../../constants/ToastContext";
-const MONTHS = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-];
 const YEARS = Array.from({ length: 50 }, (_, i) => 2000 + i);
-
 const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
     initialTo, title, restrictFeatureDate, disablePastDates, maxDateSelect
 }) => {
     const today = dayjs();
     const isDisabled = (day) => {
-        // 1. Disable past dates (based on flag)
         if (disablePastDates && day.isBefore(today, "day")) {
             return true;
         }
-
-        // 2. Restrict future dates (your existing feature flag)
         if (restrictFeatureDate && day.isAfter(today, "day")) {
             return true;
         }
-
-        // 3. Prevent selecting past from fromDate when choosing toDate
         if (fromDate && !toDate && day.isBefore(fromDate, "day")) {
             return true;
         }
-
         return false;
     };
-
     const [fromDate, setFromDate] = useState(initialFrom ? dayjs(initialFrom) : null);
     const [toDate, setToDate] = useState(initialTo ? dayjs(initialTo) : null);
-
     const [errors, setError] = useState(null);
-
-
-
     const [fromText, setFromText] = useState(initialFrom ? dayjs(initialFrom).format("DD/MM/YYYY") : "");
     const [toText, setToText] = useState(initialTo ? dayjs(initialTo).format("DD/MM/YYYY") : "");
-
     const { t } = useTranslation();
-
     const [currentMonth, setCurrentMonth] = useState(today.month());
     const [currentYear, setCurrentYear] = useState(today.year());
     const [daysInMonth, setDaysInMonth] = useState([]);
-
     const yearListRef = useRef(null);
-
     const goToPreviousMonth = () => {
         const newDate = dayjs().year(currentYear).month(currentMonth).subtract(1, "month");
         setCurrentMonth(newDate.month());
@@ -66,9 +44,6 @@ const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
         setCurrentMonth(newDate.month());
         setCurrentYear(newDate.year());
     };
-
-
-    // Generate days in current month
     useEffect(() => {
         const firstDayOfMonth = dayjs().year(currentYear).month(currentMonth).date(1);
         const totalDays = firstDayOfMonth.daysInMonth();
@@ -82,8 +57,6 @@ const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
 
         setDaysInMonth(days);
     }, [currentMonth, currentYear, fromDate, toDate]);
-
-    // Scroll year list to current year
     const scrollToYear = (year) => {
         if (yearListRef.current) {
             const index = YEARS.indexOf(year);
@@ -100,37 +73,7 @@ const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
         }
     }, [visible, currentYear]);
 
-    // Calendar selection
-    const selectDate = (day) => {
-        setError(null);
-
-        if (maxDateSelect === 1) {
-            setFromDate(day);
-            setToDate(null);
-            setFromText(day.format("DD/MM/YYYY"));
-            setToText("");
-            return;
-        }
-
-        // start new selection OR reset
-        if (!fromDate || (fromDate && toDate)) {
-            setFromDate(day);
-            setToDate(null);
-            setFromText(day.format("DD/MM/YYYY"));
-            setToText("");
-            return;
-        }
-
-        if (day.isBefore(fromDate, "day")) return;
-
-        if (isRangeExceeded(fromDate, day)) {
-            setError(`You can select maximum ${maxDateSelect} days`);
-            return;
-        }
-
-        setToDate(day);
-        setToText(day.format("DD/MM/YYYY"));
-    };
+    // 
     const monthListRef = useRef(null);
 
     const isInRange = (day) => {
@@ -182,7 +125,19 @@ const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
                 // Block future dates
                 if (restrictFeatureDate && parsed.isAfter(today, "day")) return;
                 if (fromDate && parsed.isValid()) {
-                    if (parsed.isBefore(fromDate, "day")) return;
+                    // if (parsed.isBefore(fromDate, "day")) return;
+                    let start = fromDate;
+                    let end = parsed;
+
+                    if (parsed.isBefore(fromDate, "day")) {
+                        start = parsed;
+                        end = fromDate;
+                    }
+
+                    if (isRangeExceeded(start, end)) return;
+
+                    setFromDate(start);
+                    setToDate(end);
 
                     if (isRangeExceeded(fromDate, parsed)) return;
 
@@ -220,12 +175,18 @@ const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
             onClose();
             return;
         }
-
         if (!fromDate || !toDate) {
             Alert.alert("Invalid Date", "Please select both From and To dates");
             return;
         }
-
+        if (fromDate && !toDate) {
+            onConfirm({
+                from: fromDate.toDate(),
+                to: fromDate.toDate(),
+            });
+            onClose();
+            return;
+        }
         onConfirm({ from: fromDate.toDate(), to: toDate.toDate() });
         onClose();
     };
@@ -242,6 +203,46 @@ const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
                 animated: true,
             });
         }
+    };
+
+    const selectDate = (day) => {
+        setError(null);
+
+        if (maxDateSelect === 1) {
+            setFromDate(day);
+            setToDate(null);
+            setFromText(day.format("DD/MM/YYYY"));
+            setToText("");
+            return;
+        }
+
+        // Start new selection
+        if (!fromDate || (fromDate && toDate)) {
+            setFromDate(day);
+            setToDate(null);
+            setFromText(day.format("DD/MM/YYYY"));
+            setToText("");
+            return;
+        }
+
+        // If selected date is before fromDate, swap them
+        let start = fromDate;
+        let end = day;
+
+        if (day.isBefore(fromDate, "day")) {
+            start = day;
+            end = fromDate;
+        }
+
+        if (isRangeExceeded(start, end)) {
+            setError(`You can select maximum ${maxDateSelect} days`);
+            return;
+        }
+
+        setFromDate(start);
+        setToDate(end);
+        setFromText(start.format("DD/MM/YYYY"));
+        setToText(end.format("DD/MM/YYYY"));
     };
 
     return (
@@ -326,13 +327,13 @@ const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
                             return (
                                 <Pressable
                                     key={day.format("YYYY-MM-DD")}
-                                    onPress={() => !disabled && selectDate(day)}
+                                    onPress={() =>selectDate(day)}
                                     style={[
                                         styles.dayItem,
                                         isToday && !isSelected && styles.todayDayItem,
                                         inRange && styles.inRangeDayItem,
                                         isSelected && styles.activeDayItem,
-                                        disabled && { opacity: 0.3 },
+                                        // disabled && { opacity: 0.3 },
                                     ]}
                                 >
                                     <Text
@@ -358,12 +359,12 @@ const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
 
                         <Pressable
                             onPress={confirm}
-                            disabled={isConfirmDisabled}
+                            // disabled={isConfirmDisabled}
                         >
                             <Text
                                 style={[
                                     styles.ok,
-                                    isConfirmDisabled && { opacity: 0.5 }
+                                    // isConfirmDisabled && { opacity: 0.5 }
                                 ]}
                             >
                                 {t('confirm')}
@@ -377,19 +378,11 @@ const LeaveDatePicker = ({ visible, onClose, onConfirm, initialFrom,
 };
 const styles = StyleSheet.create({
     monthHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginVertical: hp(1),
-        paddingHorizontal: wp(4),
-    },
-    monthHeaderText: {
-        fontSize: wp(4.5),
-        fontFamily: "Poppins_600SemiBold",
-        color: COLORS.primary,
-    },
-    // 
-    overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
+        flexDirection: "row", justifyContent: "space-between", alignItems: "center",
+        marginVertical: hp(1), paddingHorizontal: wp(4),
+    }, monthHeaderText: {
+        fontSize: wp(4.5), fontFamily: "Poppins_600SemiBold", color: COLORS.primary,
+    }, overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
     modal: { width: wp(95), backgroundColor: "#fff", borderRadius: wp(4), padding: wp(4), paddingVertical: hp(4) },
     title: { fontSize: wp(4), fontFamily: "Poppins_600SemiBold", textAlign: "center", marginBottom: hp(1) },
     selectedDatesContainer: { alignItems: "center", marginBottom: hp(1) },

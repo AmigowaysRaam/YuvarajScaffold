@@ -10,7 +10,7 @@ import { hp, wp } from "../../app/resources/dimensions";
 import { fetchData } from "./api/Api";
 import CommonHeader from "./CommonHeader";
 
-const TodayMeetingsLIsts = () => {
+const AllMeetings = () => {
   const navigation = useNavigation();
   const profileDetails = useSelector(
     (state) => state?.auth?.profileDetails?.data
@@ -36,7 +36,7 @@ const TodayMeetingsLIsts = () => {
         setLoading(true);
       }
       const response = await fetchData(
-        "my-meeting-list",
+        "all-meeting-activity",
         "POST",
         {
           employeeId: profileDetails?.id,
@@ -93,7 +93,7 @@ const TodayMeetingsLIsts = () => {
 
   const handleView = (item) => {
     // console.log("Meeting Details:", item);
-    navigation.navigate("MeetingTimeLine", {
+    navigation.navigate("MeetingDetailsScreen", {
       mId: item?.assignmentId,
     });
   };
@@ -139,10 +139,9 @@ const TodayMeetingsLIsts = () => {
       item?.location?.drivingDurationMin
         ? `${item.location.drivingDurationMin} Min`
         : "--";
-
     return (
       <Pressable
-        onPress={() => navigation?.navigate("MeetingTimeLine", {
+        onPress={() => navigation?.navigate("MeetingDetailsScreen", {
           mId: item?.assignmentId
         })}
         style={styles.card}
@@ -250,23 +249,8 @@ const TodayMeetingsLIsts = () => {
               },
             ]}
           >
-            <Icon name="eye-outline" size={18} color="#FFF" />
+            <Icon name="eye-outline" size={wp(4)} color="#FFF" />
             <Text style={styles.viewText}>View History</Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => handleView(item)}
-            style={[
-              styles.viewButton,
-              {
-                flex: 1,
-                marginTop: 0,
-                marginLeft: wp(1.5),
-              },
-            ]}
-          >
-            <Icon name="truck" size={18} color="#FFF" />
-            <Text style={styles.viewText}>Start Journey</Text>
           </Pressable>
         </View>
       </Pressable>
@@ -276,7 +260,7 @@ const TodayMeetingsLIsts = () => {
     <View style={styles.wrapper}>
       <CommonHeader showBackButton
         onBackPress={() => navigation.goBack()}
-        title="Today's Meetings" />
+        title="All Meetings" />
       <View style={styles.container}>
         <View style={styles.searchContainer}>
           <Icon
@@ -341,7 +325,7 @@ const TodayMeetingsLIsts = () => {
   );
 };
 
-export default TodayMeetingsLIsts;
+export default AllMeetings;
 
 const styles = StyleSheet.create({
   wrapper: {

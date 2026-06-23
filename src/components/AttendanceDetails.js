@@ -112,18 +112,12 @@ const AttendanceDetails = ({ homepageData }) => {
     const attendanceSection = homepageData?.sections?.find(
       (item) => item.section === "attendance_summary"
     );
-    console.log(
-      JSON.stringify(attendanceSection),
-      "attendance_summary"
-    );
-
     if (attendanceSection?.attendance_summary) {
       setAttendanceSummary(
         attendanceSection.attendance_summary
       );
       // {"section":"attendance_summary","attendance_summary":{"total_days":30,"present_days":0,"half_days":3,"absent_days":15,"late_days":0,"hours_worked":6.69}} attendance_summary     this is console data
     }
-
     const staggerAnims = animations.map((anim) =>
       Animated.timing(anim, {
         toValue: 1,
@@ -131,7 +125,6 @@ const AttendanceDetails = ({ homepageData }) => {
         useNativeDriver: true,
       })
     );
-
     Animated.stagger(120, staggerAnims).start();
   }, [homepageData]);
 

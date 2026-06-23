@@ -17,9 +17,9 @@ import { hp, wp } from "../../app/resources/dimensions";
 import { fetchData } from "./api/Api";
 import ProfileCard from "./profileCard";
 import { setSidebarMenu } from "./store/store";
+
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
-
 
 export default function SideMenu({ visible, onClose, onItemPress }) {
     const [slideAnim] = useState(new Animated.Value(-SCREEN_WIDTH * 0.8));
@@ -33,6 +33,7 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
     const profileDetails = useSelector(
         (state) => state?.auth?.profileDetails?.data
     );
+    
     const dispatch = useDispatch();
     const navigation = useNavigation();
     useEffect(() => {
@@ -114,6 +115,7 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
         privacy_policy: require("../../assets/PrivacyPolicy.png"),
         ChangeMpin: require("../../assets/ChangeMpin.png"),
         reminder: require("../../assets/NotificationSideb.png"),
+        meetings: require("../../assets/Settings.png"),
 
     };
     const confirmLogout = async () => {
@@ -127,7 +129,7 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
                     deviceInfo: pseudoId
                 }
             );
-            console.log(response,"response")
+            console.log(response, "response")
             // "text": "Success"
             if (response?.text == 'Success') {
                 await AsyncStorage.clear();
@@ -155,6 +157,9 @@ export default function SideMenu({ visible, onClose, onItemPress }) {
         }
         if (key && key == "notification") {
             navigation.navigate('Notification');
+        }
+        if (key && key == "meetings") {
+            navigation.navigate('AllMeetings');
         }
         // if (key && key == "our_stores") {
         // }
